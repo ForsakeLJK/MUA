@@ -58,11 +58,11 @@ public class Parser {
 		
 		str = in;
 		preprocess(); // do nothing temporarily
-		split();      //
-		System.out.print("after splitting:");
+		split(inStream);      //
+		Collections.reverse(lineList);  // reverse the whole list
+		System.out.print("after splitting and reversing:");
 		System.out.print(lineList.toString());
 		System.out.print("\n");
-//		Collections.reverse(lineList);  // reverse the whole list
 //		execute(inStream);
 		// check every token's type and execute
 
@@ -172,7 +172,7 @@ public class Parser {
 	
 	// substitute : to thing "
 	// if [] exists, add it into list as a whole 
-	private void split()
+	private void split(Scanner inStream)
 	{
 		int off = 0;
 		int next = 0;
@@ -211,10 +211,22 @@ public class Parser {
 						// find the matching ]
 						while(true)
 						{
-							if(str.charAt(k) == '[')
-								tmpStack.push("[");
-							else if(str.charAt(k) == ']')
-								tmpStack.pop();
+							if(k < str.length())
+							{
+								if(str.charAt(k) == '[')
+									tmpStack.push("[");
+								else if(str.charAt(k) == ']')
+									tmpStack.pop();								
+							}
+							else // try to read multiple-line list
+							{
+								String tmpStr;
+								tmpStr = inStream.nextLine();
+								//preprocess(tmpStr);
+								str += tmpStr;
+								continue;
+							}
+							
 							if(tmpStack.empty())
 								break;
 							else
