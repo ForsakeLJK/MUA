@@ -18,16 +18,17 @@ import src.mua.value.MUAWord;
 
 // use stack
 public class Parser {
-	private final ArrayList<String> operationList = new ArrayList<String>();
+	private final ArrayList<String> operationList = new ArrayList<String>(); // operations
 	
-	private DataSpace space = null;
+	private DataSpace space = null;  // data space to store variables
 	
-	private ArrayList<String> lineList = null;
-	private String str = "";
-	private Stack<MUAValue> stackVal = null;
+	private ArrayList<String> lineList = null;  // input code line as list
+	private String str = "";	// input code line which will be converted into list
+	private Stack<MUAValue> stackVal = null; // stack storing values
 	
 	public Parser(DataSpace space)
 	{
+		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
 			"make", "thing", "erase", "isname", "print", "read",
 			"add", "sub", "mul", "div", "mod",
@@ -52,12 +53,12 @@ public class Parser {
 	public void parse(String in, Scanner inStream)
 	{
 		lineList = new ArrayList<String>();
-		stackVal = new Stack<MUAValue>();
+		stackVal = new Stack<MUAValue>();  
 		
 		str = in;
-		preprocess();
-		split();
-		Collections.reverse(lineList);
+		preprocess(); // do nothing temporarily
+		split();      //
+		Collections.reverse(lineList);  // reverse the whole list
 		execute(inStream);
 		// check every token's type and execute
 
@@ -70,8 +71,10 @@ public class Parser {
 		for(String token : lineList)
 		{
 			type = tokenTypeCheck(token);
+			// if it's a MUAValue, push it into stack
 			switch(type) {
 				case "Word":
+					// delete " here
 					tmpVal = new MUAWord(token.substring(1), space);
 					stackVal.push(tmpVal);
 					break;
@@ -89,6 +92,11 @@ public class Parser {
 					break;
 				case "Operation":
 					Operation.operate(this, token, space, inStream);
+					break;
+				case "Function":
+					// fetch the corresponding list
+					// new parser with the original spcae and a new stack needed
+					MUAFunc.funcExecute(this, token, space, inStream);
 					break;
 				default:break;
 			}
@@ -110,10 +118,21 @@ public class Parser {
 			type = "List";
 		else if(isOp(token))
 			type = "Operation";
+		else if(isFunction(token))  // check if it denotes a function
+			type = "Function";
 		else
 			type = "Unknown";
 		
 		return type;
+	}
+	
+	private boolean isFunction(String token)
+	{
+		// check if this token as a MUAWord has a bindVal
+		//		if it has and its bindVal is a list, it is a function
+		//		then return true
+		return true;
+		// else, it's not
 	}
 	
 	private boolean isNum(String token)
@@ -128,6 +147,7 @@ public class Parser {
 		return res;
 	}
 	
+	// check if a token is an op
 	private boolean isOp(String token)
 	{
 		return operationList.contains(token);
@@ -145,6 +165,8 @@ public class Parser {
 		//str += "wow";
 	}
 	
+	// substitute : to thing "
+	// if [] exists, add it into list as a whole 
 	private void split()
 	{
 		int off = 0;
@@ -157,6 +179,7 @@ public class Parser {
 			if(next != -1) {
 				tmpSub = str.substring(off, next);
 				// how about :::::d?
+				// : to thing "
 				if(tmpSub.charAt(0)==':')
 				{
 					i = 0;
@@ -173,11 +196,11 @@ public class Parser {
 				off = next + 1;
 				
 				if(str.charAt(off) == '[')
-					next = str.indexOf("]", off) + 1;
+					next = str.indexOf("]", off) + 1;  // add the entire [] into list
 				else
-					next = str.indexOf(" ", off);
+					next = str.indexOf(" ", off);    
 			} 
-			else {
+			else { // the last one
 				tmpSub = str.substring(off, str.length());
 				if(tmpSub.charAt(0)==':')
 				{

@@ -7,7 +7,8 @@ import src.mua.parse.Parser;
 
 public class Main {
 
-	/*Test code1:
+	/*
+	Test code1:
  	make "a 6
 	print :a
 	make "b "a
@@ -22,7 +23,7 @@ public class Main {
 	print :x
 	erase "d
 	print not isname "d
-						*/	
+	*/	
 	/*
 	Test code2:
 	make "a 1
@@ -48,21 +49,6 @@ public class Main {
 	 ]
 	]
 	f 1
-	//  not required
-	make "a 6
-	make "b if eq :a 6 [2] [3]
-	print :b
-	make "n 5
-	make "f [
-	 [n]
-	 [
-	  if lt :n 2
-	   [1]
-	   [mul :n f sub :n 1]
-	 ]
-	]
-	print f :n
-	print :n
 	*/
 	    
 	public static void main(String[] args) {
