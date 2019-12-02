@@ -177,10 +177,11 @@ public class Parser {
 		int off = 0;
 		int next = 0;
 		int i = 0;
-		int tmp = 0;
 		Stack<String> tmpStack = new Stack<String>();
 		String tmpSub = "";
-		
+		// skip all white spaces at beginning
+		while(str.charAt(off) == ' ') 
+			off++;
 		next = str.indexOf(" ", off);
 		while(next != -1 || off != str.length()) {
 			if(next != -1) {
@@ -201,6 +202,16 @@ public class Parser {
 					lineList.add(tmpSub);
 				
 				off = next + 1;
+				if(off < str.length())
+				{
+					while(str.charAt(off) == ' ')
+					{
+						off++;
+						if(off >= str.length())
+							break;
+					}				
+				}
+
 				
 				if(off < str.length()) 
 				{
