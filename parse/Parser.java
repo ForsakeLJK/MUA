@@ -30,11 +30,12 @@ public class Parser {
 	{
 		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
-			"make", "thing", "erase", "isname", "print", "read",
+			"make", "thing", "erase", "isname", "print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
 			"eq", "gt", "lt",
 			"and", "or", 
-			"not");
+			"not"
+			);
 		operationList.addAll(list);
 		
 		this.space = space;
@@ -58,8 +59,11 @@ public class Parser {
 		str = in;
 		preprocess(); // do nothing temporarily
 		split();      //
-		Collections.reverse(lineList);  // reverse the whole list
-		execute(inStream);
+		System.out.print("after splitting:");
+		System.out.print(lineList.toString());
+		System.out.print("\n");
+//		Collections.reverse(lineList);  // reverse the whole list
+//		execute(inStream);
 		// check every token's type and execute
 
 	}
@@ -93,11 +97,12 @@ public class Parser {
 				case "Operation":
 					Operation.operate(this, token, space, inStream);
 					break;
-				case "Function":
+				//case "Function":
 					// fetch the corresponding list
 					// new parser with the original spcae and a new stack needed
-					MUAFunc.funcExecute(this, token, space, inStream);
-					break;
+					// scope belongs to parser
+					//MUAFunc.funcExecute(this, token, space, inStream);
+					//break;
 				default:break;
 			}
 		}
@@ -131,7 +136,7 @@ public class Parser {
 		// check if this token as a MUAWord has a bindVal
 		//		if it has and its bindVal is a list, it is a function
 		//		then return true
-		return true;
+		return false;
 		// else, it's not
 	}
 	
@@ -172,6 +177,8 @@ public class Parser {
 		int off = 0;
 		int next = 0;
 		int i = 0;
+		int tmp = 0;
+		Stack<String> tmpStack = new Stack<String>();
 		String tmpSub = "";
 		
 		next = str.indexOf(" ", off);
@@ -195,10 +202,34 @@ public class Parser {
 				
 				off = next + 1;
 				
-				if(str.charAt(off) == '[')
-					next = str.indexOf("]", off) + 1;  // add the entire [] into list
-				else
-					next = str.indexOf(" ", off);    
+				if(off < str.length()) 
+				{
+					if(str.charAt(off) == '[')
+					{
+						int k = off + 1;
+						tmpStack.push("[");
+						// find the matching ]
+						while(true)
+						{
+							if(str.charAt(k) == '[')
+								tmpStack.push("[");
+							else if(str.charAt(k) == ']')
+								tmpStack.pop();
+							if(tmpStack.empty())
+								break;
+							else
+								k++;
+						}
+						if(k < str.length()-1)
+							next = k + 1;  // add the entire [] into list
+						else
+							next = str.length();
+					}
+					else
+						next = str.indexOf(" ", off);  
+				}
+				else 
+					break;
 			} 
 			else { // the last one
 				tmpSub = str.substring(off, str.length());
@@ -227,16 +258,9 @@ public class Parser {
 		Parser p = new Parser(space);
 		
 		String testLine = in.nextLine();
-		while(!testLine.equals("$"))
-		{
-			p.parse(testLine, in);
-//			System.out.print("Splitted: ");
-//			for(String k:p.lineList) {
-//				System.out.print(k +" ");
-//			}
-//			System.out.print("\n");
-			testLine = in.nextLine();
-		}
+		p.parse(testLine, in);
+		//p.split();
+
 
 	}
 }
