@@ -30,14 +30,15 @@ public class Main {
 	repeat 4 [make "a add :a 1 print :a]
 	print :a
 	make "n 5
-	make "f [
-	 [n]
-	 [
-	  if lt :n 2
-	   [output 1]
-	   [output mul :n f sub :n 1]
-	 ]
-	]
+	if 
+    make "f [
+     [n]
+     [
+      if lt :n 2
+       [output 1]
+       [output mul :n f sub :n 1]
+     ]
+    ]
 	print f :n
 	print :n
 	make "f [

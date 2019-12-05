@@ -22,7 +22,8 @@ public class Parser {
 	
 	private DataSpace space = null;  // data space to store variables
 	
-	private ArrayList<String> lineList = null;  // input code line as list
+	private ArrayList<String> tokenList = null;  // input tokens as list
+	private ArrayList<ArrayList<String>> lineList = null; // store different lines
 	private String str = "";	// input code line which will be converted into list
 	private Stack<MUAValue> stackVal = null; // stack storing values
 	
@@ -30,11 +31,13 @@ public class Parser {
 	{
 		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
-			"make", "thing", "erase", "isname", "print", "read", "readlist", "repeat",
+			"make", "thing", "erase", "isname", 
+			"print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
 			"eq", "gt", "lt",
 			"and", "or", 
-			"not"
+			"not",
+			"if"
 			);
 		operationList.addAll(list);
 		
@@ -53,14 +56,22 @@ public class Parser {
 	
 	public void parse(String in, Scanner inStream)
 	{
-		lineList = new ArrayList<String>();
-		stackVal = new Stack<MUAValue>();  
+		//Init vars
+		tokenList = new ArrayList<String>();
+		stackVal = new Stack<MUAValue>(); 
+		lineList = new ArrayList<ArrayList<String>>();
+		//ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
 		
 		str = in;
 		preprocess(); // do nothing temporarily
-		split(inStream);      //
-		Collections.reverse(lineList);  // reverse the whole list
-		System.out.print("after splitting and reversing:");
+		lexer(inStream);      //
+		Collections.reverse(tokenList);  // reverse the whole list
+		System.out.print("after lexing and reversing:\n");
+		System.out.print(tokenList.toString());
+		System.out.print("\n");
+		
+		split();
+		System.out.print("after splitting:\n");
 		System.out.print(lineList.toString());
 		System.out.print("\n");
 //		execute(inStream);
@@ -72,7 +83,7 @@ public class Parser {
 	{
 		MUAValue tmpVal;
 		String type;
-		for(String token : lineList)
+		for(String token : tokenList)
 		{
 			type = tokenTypeCheck(token);
 			// if it's a MUAValue, push it into stack
@@ -123,10 +134,11 @@ public class Parser {
 			type = "List";
 		else if(isOp(token))
 			type = "Operation";
-		else if(isFunction(token))  // check if it denotes a function
-			type = "Function";
+		//else if(isFunction(token))  // check if it denotes a function
 		else
-			type = "Unknown";
+			type = "Function";
+		//else
+			//type = "Unknown";
 		
 		return type;
 	}
@@ -172,7 +184,7 @@ public class Parser {
 	
 	// substitute : to thing "
 	// if [] exists, add it into list as a whole 
-	private void split(Scanner inStream)
+	private void lexer(Scanner inStream)
 	{
 		int off = 0;
 		int next = 0;
@@ -193,13 +205,13 @@ public class Parser {
 					i = 0;
 					//for(i = 0; tmpSub.charAt(i)==':'; i++)
 					while(tmpSub.charAt(i) == ':') {
-						lineList.add("thing");
+						tokenList.add("thing");
 						i++;
 					}
-					lineList.add("\""+ tmpSub.substring(i));
+					tokenList.add("\""+ tmpSub.substring(i));
 				}
 				else
-					lineList.add(tmpSub);
+					tokenList.add(tmpSub);
 				
 				off = next + 1;
 				if(off < str.length())
@@ -234,7 +246,9 @@ public class Parser {
 								String tmpStr;
 								tmpStr = inStream.nextLine();
 								//preprocess(tmpStr);
+								//tmpStr = "$" + tmpStr ? 
 								str += tmpStr;
+								//str.replace()
 								continue;
 							}
 							
@@ -261,17 +275,106 @@ public class Parser {
 					i = 0;
 					//for(i = 0; tmpSub.charAt(i)==':'; i++)
 					while(tmpSub.charAt(i) == ':') {
-						lineList.add("thing");
+						tokenList.add("thing");
 						i++;
 					}
-					lineList.add("\""+ tmpSub.substring(i));
+					tokenList.add("\""+ tmpSub.substring(i));
 				}
 				else
-					lineList.add(tmpSub);
+					tokenList.add(tmpSub);
 				off = str.length();
 			}
 		}
 	}
+	
+	
+	private int retValCnt(String token, String type)
+	{
+		switch(type)
+		{
+			case "Operation":
+				if(token.equals("make") || token.equals("erase")||token.equals("print")
+						||token.equals("repeat")||token.equals("if"))
+					return 0;
+				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
+						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
+						|| token.equals("eq")||token.equals("gt")||token.equals("lt")||token.equals("and")||token.equals("or")
+						|| token.equals("not"))
+					return 1;
+				break;
+			case "Function":
+				// need to add code later
+				break;
+			default:
+				break;
+		}
+		return -1; // cnt error
+	}
+	
+	private int operandCnt(String token, String type)
+	{
+		switch(type)
+		{
+			case "Operation":
+				if(token.equals("make")||token.equals("add")||token.equals("sub")||token.equals("mul")
+					||token.equals("div")||token.equals("mod")||token.equals("eq")||token.equals("gt")
+					||token.equals("lt")||token.equals("and")||token.equals("or"))
+					return 2;
+				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
+					||token.equals("print")||token.equals("read")||token.equals("readlist")
+					||token.equals("repeat")||token.equals("not"))
+					return 1;
+				else if(token.equals("if"))
+					return 3;
+				break;
+			case "Function":
+				// need to add code later
+				break;
+			default:
+				break;
+		}
+		
+		return -1; // -1 denotes error
+	}
+	// split tokenList into statements
+	private void split()
+	{
+		ArrayList<String> tmpList = new ArrayList<String>();
+		String tmpType = null;
+		MUANumber dummyVal = new MUANumber("0");
+		
+		int retCnt = 0;  // count how many return values an op or func has
+		int opCnt = 0; // count operands needed
+		
+		for(String token : tokenList)
+		{
+			tmpList.add(token);
+			tmpType = tokenTypeCheck(token);
+			// here type "funtion" means it's neither a MUAValue nor a Operation
+			if(tmpType.equals("Operation") || tmpType.equals("Function"))  
+			{
+				// Need to check how many return values it has	
+				// -1 denotes error
+				retCnt = retValCnt(token, tmpType);
+				opCnt = operandCnt(token, tmpType);
+				for(int i=0; i<opCnt; i++)
+					stackVal.pop();
+				for(int i=0; i<retCnt; i++)
+					stackVal.push(dummyVal);
+			}
+			else // if it's MUAValue, push
+				stackVal.push(dummyVal);
+			
+			if(stackVal.empty()) {
+				lineList.add(tmpList);
+				tmpList = new ArrayList<String>(); // reset tmpList
+			}
+		}
+		
+		// to avoid error, after executing this func, clear the stack
+		stackVal.clear();
+	}
+	
 	
 	
 	public static void main(String[] args) {
