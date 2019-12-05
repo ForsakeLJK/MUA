@@ -157,7 +157,7 @@ public class Operation {
 				tmpWord1 = new MUAWord(tmpStr, space);
 				p.stackPush(tmpWord1);
 				break;
-			case "readList":
+			case "readlist":
 				tmpStr = "[ ";
 				tmpStr += inStream.nextLine();
 				tmpStr += " ]";  // leave a space before ]
