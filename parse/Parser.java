@@ -73,29 +73,33 @@ public class Parser {
 		
 		redo = split();
 		
-		while(redo && inStream.hasNextLine())  // if 
-		{
-			//System.out.print("redoing...\n");
-			// re-init
-			tokenList.clear();
-			lineList.clear();
-			stackVal.clear();
-			// update str
-			str += " ";
-			str += inStream.nextLine();
-			// redo
-			preprocess();
-			lexer(inStream);
-			Collections.reverse(tokenList);  // reverse the whole list
-			//System.out.print("after lexing and reversing:\n");
-			//System.out.print(tokenList.toString());
-			//System.out.print("\n");
-			
-			redo = split();
-		}
+		//if(redo)
+		//{
+			while(redo && inStream.hasNextLine())  // if 
+			{
+				//System.out.print("redoing...\n");
+				// re-init
+				tokenList.clear();
+				lineList.clear();
+				stackVal.clear();
+				// update str
+				str += " ";
+				str += inStream.nextLine();
+				// redo
+				preprocess();
+				lexer(inStream);
+				Collections.reverse(tokenList);  // reverse the whole list
+				//System.out.print("after lexing and reversing:\n");
+				//System.out.print(tokenList.toString());
+				//System.out.print("\n");
+				
+				redo = split();
+			}		
+		//}
+
 		
-		if(!inStream.hasNextLine())
-			System.out.print("Bad thing happened!");
+		//if(!inStream.hasNextLine())
+		//	System.out.print("Bad thing happened!");
 		
 		// reverse line list for executing
 		Collections.reverse(lineList);
@@ -356,11 +360,13 @@ public class Parser {
 					||token.equals("repeat"))
 					return 2;
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
-					||token.equals("print")||token.equals("read")||token.equals("readlist")
+					||token.equals("print")
 					||token.equals("not"))
 					return 1;
 				else if(token.equals("if"))
 					return 3;
+				else if(token.equals("read")||token.equals("readlist"))
+					return 0;
 				break;
 			case "Function":
 				// need to add code later

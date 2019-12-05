@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import src.mua.dataSpace.DataSpace;
 import src.mua.value.MUABool;
+import src.mua.value.MUAList;
 import src.mua.value.MUANumber;
 import src.mua.value.MUAValue;
 import src.mua.value.MUAWord;
@@ -32,6 +33,8 @@ public class Operation {
 			res = tmpBool.toString();
 			break;
 		case "List":
+			MUAList tmpList = (MUAList) Val;
+			res = tmpList.toString();
 			break;
 		}
 		
@@ -121,6 +124,7 @@ public class Operation {
 		MUAValue tmpVal1 = null;
 		MUAWord name = null;
 		MUAValue bindVal = null;
+		MUAList tmpList1 = null;
 		
 		String tmpStr;
 		
@@ -153,6 +157,14 @@ public class Operation {
 				tmpWord1 = new MUAWord(tmpStr, space);
 				p.stackPush(tmpWord1);
 				break;
+			case "readList":
+				tmpStr = "[ ";
+				tmpStr += inStream.nextLine();
+				tmpStr += " ]";  // leave a space before ]
+				tmpList1 = new MUAList(tmpStr);
+				p.stackPush(tmpList1);
+				break;
+				
 		}
 	}
 	
