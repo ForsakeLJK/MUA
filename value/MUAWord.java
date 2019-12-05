@@ -4,22 +4,29 @@ import src.mua.dataSpace.DataSpace;
 
 public class MUAWord extends MUAValue{
 	private String content = "";
+	private String bindLocation = "";
 	private boolean hasBond = false;
 	private MUAValue bindVal = null;
 	private DataSpace space = null;
+	private DataSpace localSpace = null;
 	
-	
+	// here space denotes the global space
 	// use content to construct
-	public MUAWord(String content, DataSpace space) {
+	public MUAWord(String content, DataSpace space, DataSpace local) {
 		super("Word");
 		this.content = content; // let parser trim \"
 		this.space = space;
-		findBond();  // check if it has bond
+		this.localSpace = local;
+		findBond();  // check whether it has bond or not
 	};
 	
 	public void eraseBond()
 	{
-		space.deleteBond(this);
+		if(bindLocation.equals("global"))
+			space.deleteBond(this);
+		else if(bindLocation.equals("local"))
+			localSpace.deleteBond(this);
+
 		bindVal = null;
 		hasBond = false;
 	}
@@ -36,18 +43,33 @@ public class MUAWord extends MUAValue{
 	
 	private void findBond()
 	{
-		if(space.inNameSpace(this)) {
+		if(localSpace.inNameSpace(this)) {
+			hasBond = true;
+			bindVal = localSpace.fetchVal(this);
+			bindLocation = "local";
+		}
+		else if(space.inNameSpace(this))
+		{
 			hasBond = true;
 			bindVal = space.fetchVal(this);
+			bindLocation = "global";
 		}
 	}
 	
 	public void setBond(MUAValue val)
 	{
-		if(!hasBond)
-			space.addBond(this, val);
+		if(!hasBond) // add to local
+		{	
+			localSpace.addBond(this, val);			
+		}
 		else
-			space.replaceBond(this, val);
+		{
+			if(bindLocation.equals("global"))
+				space.replaceBond(this, val);
+			else if(bindLocation.equals("local"))
+				localSpace.replaceBond(this, val);
+		}
+
 		bindVal = val;
 		hasBond = true;
 	}
@@ -87,10 +109,6 @@ public class MUAWord extends MUAValue{
 
 	public static void main(String[] args)
 	{
-		DataSpace space = new DataSpace();
-		MUAWord word = new MUAWord("1234", space);
-		System.out.println("Type: "+word.getType());
-		System.out.println("ConvertibleToNum: " + word.checkConvertToNum());
-		System.out.println("ConvertibleToBool: " + word.checkConvertToBool());
+		
 	}
 }

@@ -160,7 +160,7 @@ public class Operation {
 			case "read": 
 				//Scanner in = new Scanner(System.in);
 				tmpStr = inStream.nextLine();
-				tmpWord1 = new MUAWord(tmpStr, localSpace);
+				tmpWord1 = new MUAWord(tmpStr, space, localSpace);
 				p.stackPush(tmpWord1);
 				break;
 			case "readlist":

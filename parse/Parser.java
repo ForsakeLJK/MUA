@@ -130,7 +130,8 @@ public class Parser {
 						// trim " here
 						// variable always in the local space
 						// noting in main parser local == global
-						tmpVal = new MUAWord(token.substring(1), localSpace);
+						// here it must be make "variable <value>
+						tmpVal = new MUAWord(token.substring(1), space, localSpace);
 						stackVal.push(tmpVal);
 						break;
 					case "Number":
@@ -184,15 +185,6 @@ public class Parser {
 			//type = "Unknown";
 		
 		return type;
-	}
-	
-	private boolean isFunction(String token)
-	{
-		// check if this token as a MUAWord has a bindVal
-		//		if it has and its bindVal is a list, it is a function
-		//		then return true
-		return false;
-		// else, it's not
 	}
 	
 	private boolean isNum(String token)
