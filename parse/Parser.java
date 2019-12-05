@@ -56,6 +56,7 @@ public class Parser {
 	
 	public void parse(String in, Scanner inStream)
 	{
+		boolean redo = false;
 		//Init vars
 		tokenList = new ArrayList<String>();
 		stackVal = new Stack<MUAValue>(); 
@@ -70,8 +71,30 @@ public class Parser {
 		System.out.print(tokenList.toString());
 		System.out.print("\n");
 		
-		split();
-		System.out.print("after splitting:\n");
+		redo = split();
+		
+		while(redo && inStream.hasNextLine())  // if 
+		{
+			System.out.print("redoing...\n");
+			// re-init
+			tokenList.clear();
+			lineList.clear();
+			stackVal.clear();
+			// update str
+			str += " ";
+			str += inStream.nextLine();
+			// redo
+			preprocess();
+			lexer(inStream);
+			Collections.reverse(tokenList);  // reverse the whole list
+			System.out.print("after lexing and reversing:\n");
+			System.out.print(tokenList.toString());
+			System.out.print("\n");
+			
+			redo = split();
+		}
+			
+		System.out.print("after splitting successfully:\n");
 		System.out.print(lineList.toString());
 		System.out.print("\n");
 //		execute(inStream);
@@ -337,7 +360,7 @@ public class Parser {
 		return -1; // -1 denotes error
 	}
 	// split tokenList into statements
-	private void split()
+	private boolean split()
 	{
 		ArrayList<String> tmpList = new ArrayList<String>();
 		String tmpType = null;
@@ -358,7 +381,12 @@ public class Parser {
 				retCnt = retValCnt(token, tmpType);
 				opCnt = operandCnt(token, tmpType);
 				for(int i=0; i<opCnt; i++)
-					stackVal.pop();
+				{
+					if(!stackVal.empty())
+						stackVal.pop();
+					else
+						return true;  // fail, redo
+				}
 				for(int i=0; i<retCnt; i++)
 					stackVal.push(dummyVal);
 			}
@@ -373,6 +401,8 @@ public class Parser {
 		
 		// to avoid error, after executing this func, clear the stack
 		stackVal.clear();
+		
+		return false;  // success, no redo
 	}
 	
 	

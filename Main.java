@@ -30,7 +30,6 @@ public class Main {
 	repeat 4 [make "a add :a 1 print :a]
 	print :a
 	make "n 5
-	if 
     make "f [
      [n]
      [
