@@ -41,7 +41,8 @@ public class Operation {
 		return res;
 	}
 	
-	public static void operate (Parser p, String opStr, DataSpace space, Scanner inStream)
+	// space here denotes the global space, whereas localSpace the local space
+	public static void operate (Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream)
 	{
 		
 		if(opStr.equals("eq")||opStr.equals("gt")||opStr.equals("lt"))
@@ -51,7 +52,7 @@ public class Operation {
 		else if(opStr.equals("add")||opStr.equals("sub")||opStr.equals("mul")||opStr.equals("div")||opStr.equals("mod"))
 			opArithmetic(p, opStr);
 		else 
-			opOther(p, opStr, space, inStream);
+			opOther(p, opStr, space, localSpace, inStream);
 	}
 	
 	private static void opArithmetic(Parser p, String opStr)
@@ -117,7 +118,7 @@ public class Operation {
 		p.stackPush(resNum);
 	}
 	
-	private static void opOther(Parser p, String opStr, DataSpace space, Scanner inStream)
+	private static void opOther(Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream)
 	{
 		MUABool tmpBool1 = null;
 		MUAWord tmpWord1 = null;
@@ -131,6 +132,7 @@ public class Operation {
 		
 		String tmpStr;
 		String tmpStr1;
+		//DataSpace tmpSpace;
 		
 			switch(opStr) {
 			case "make": 
@@ -158,7 +160,7 @@ public class Operation {
 			case "read": 
 				//Scanner in = new Scanner(System.in);
 				tmpStr = inStream.nextLine();
-				tmpWord1 = new MUAWord(tmpStr, space);
+				tmpWord1 = new MUAWord(tmpStr, localSpace);
 				p.stackPush(tmpWord1);
 				break;
 			case "readlist":
@@ -173,7 +175,8 @@ public class Operation {
 				// make "a 1
 				// repeat 4 [make "a add :a 1 print :a]
 				// result: 2 3 4 5
-				tmpParser = new Parser(space);
+				//tmpSpace = new DataSpace();
+				tmpParser = new Parser(space, localSpace);    // space in repeat is the same as its parent parser
 				tmpNum1 = (MUANumber)p.stackPop();  // repeat times
 				tmpList1 = (MUAList)p.stackPop(); // repeat code
 				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1);  // code to repeat
@@ -189,11 +192,12 @@ public class Operation {
 			case "if":
 				/* test code:
 					make "n 5
+					print :n
 				    if lt :n 2
 				      [print sub :n 2]
 				      [print add :n 1]
 				 */
-				tmpParser = new Parser(space);
+				tmpParser = new Parser(space, localSpace);  // space in if is the same as its parent parser
 				tmpBool1 = (MUABool)p.stackPop(); // boolean
 				tmpList1 = (MUAList)p.stackPop();  // condition 1 (when true)
 				tmpList2 = (MUAList)p.stackPop();  // condition 2 (when false)

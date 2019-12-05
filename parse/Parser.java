@@ -20,14 +20,15 @@ import src.mua.value.MUAWord;
 public class Parser {
 	private final ArrayList<String> operationList = new ArrayList<String>(); // operations
 	
-	private DataSpace space = null;  // data space to store variables
+	private DataSpace space = null;  // global data space to store variables
+	private DataSpace localSpace = null; // local data space 
 	
 	private ArrayList<String> tokenList = null;  // input tokens as list
 	private ArrayList<ArrayList<String>> lineList = null; // store different lines
 	private String str = "";	// input code line which will be converted into list
 	private Stack<MUAValue> stackVal = null; // stack storing values
 	
-	public Parser(DataSpace space)
+	public Parser(DataSpace space, DataSpace local)
 	{
 		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
@@ -41,6 +42,7 @@ public class Parser {
 			);
 		operationList.addAll(list);
 		
+		this.localSpace = local;
 		this.space = space;
 	}
 	
@@ -125,8 +127,10 @@ public class Parser {
 				switch(type) 
 				{
 					case "Word":
-						// delete " here
-						tmpVal = new MUAWord(token.substring(1), space);
+						// trim " here
+						// variable always in the local space
+						// noting in main parser local == global
+						tmpVal = new MUAWord(token.substring(1), localSpace);
 						stackVal.push(tmpVal);
 						break;
 					case "Number":
@@ -142,7 +146,8 @@ public class Parser {
 						stackVal.push(tmpVal);
 						break;
 					case "Operation":
-						Operation.operate(this, token, space, inStream);
+						// operate() can access both global and local space
+						Operation.operate(this, token, space, localSpace, inStream);
 						break;
 					//case "Function":
 						// fetch the corresponding list
@@ -429,7 +434,7 @@ public class Parser {
 		Scanner in = new Scanner(System.in);
 
 		DataSpace space = new DataSpace();
-		Parser p = new Parser(space);
+		Parser p = new Parser(space, space);
 		
 		String testLine = in.nextLine();
 		p.parse(testLine, in);

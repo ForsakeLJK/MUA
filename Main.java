@@ -53,11 +53,11 @@ public class Main {
 	    
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
-		DataSpace space = new DataSpace(); 
-		Parser parser = new Parser(space);
-		// while in.hasNextLine?
+		DataSpace space = new DataSpace(); // global space 
+		Parser parser = new Parser(space, space);  // main parser, global == local
+		
 		while(in.hasNextLine()) {
-			String str = in.nextLine(); // no "\n" occurs
+			String str = in.nextLine(); 
 			parser.parse(str, in);
 		}
 
