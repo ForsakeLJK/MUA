@@ -125,10 +125,12 @@ public class Operation {
 		MUAWord name = null;
 		MUAValue bindVal = null;
 		MUAList tmpList1 = null;
+		MUAList tmpList2 = null;
 		MUANumber tmpNum1 = null;
 		Parser tmpParser = null;
 		
 		String tmpStr;
+		String tmpStr1;
 		
 			switch(opStr) {
 			case "make": 
@@ -183,8 +185,29 @@ public class Operation {
 				{
 					tmpParser.parse(tmpStr, inStream);
 				}
-				
 				break;
+			case "if":
+				/* test code:
+					make "n 5
+				    if lt :n 2
+				      [print sub :n 2]
+				      [print add :n 1]
+				 */
+				tmpParser = new Parser(space);
+				tmpBool1 = (MUABool)p.stackPop(); // boolean
+				tmpList1 = (MUAList)p.stackPop();  // condition 1 (when true)
+				tmpList2 = (MUAList)p.stackPop();  // condition 2 (when false)
+				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1); // code 1
+				tmpStr1 = tmpList2.getList().substring(1, tmpList2.getList().length()-1); // code 2
+				// run conditional code
+				if(tmpBool1.getVal())
+				{
+					tmpParser.parse(tmpStr, inStream);
+				}
+				else
+				{
+					tmpParser.parse(tmpStr1, inStream);
+				}
 				
 		}
 	}
