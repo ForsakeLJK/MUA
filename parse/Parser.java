@@ -67,15 +67,15 @@ public class Parser {
 		preprocess(); // do nothing temporarily
 		lexer(inStream);      //
 		Collections.reverse(tokenList);  // reverse the whole list
-		System.out.print("after lexing and reversing:\n");
-		System.out.print(tokenList.toString());
-		System.out.print("\n");
+		//System.out.print("after lexing and reversing:\n");
+		//System.out.print(tokenList.toString());
+		//System.out.print("\n");
 		
 		redo = split();
 		
 		while(redo && inStream.hasNextLine())  // if 
 		{
-			System.out.print("redoing...\n");
+			//System.out.print("redoing...\n");
 			// re-init
 			tokenList.clear();
 			lineList.clear();
@@ -87,17 +87,22 @@ public class Parser {
 			preprocess();
 			lexer(inStream);
 			Collections.reverse(tokenList);  // reverse the whole list
-			System.out.print("after lexing and reversing:\n");
-			System.out.print(tokenList.toString());
-			System.out.print("\n");
+			//System.out.print("after lexing and reversing:\n");
+			//System.out.print(tokenList.toString());
+			//System.out.print("\n");
 			
 			redo = split();
 		}
-			
-		System.out.print("after splitting successfully:\n");
-		System.out.print(lineList.toString());
-		System.out.print("\n");
-//		execute(inStream);
+		
+		if(!inStream.hasNextLine())
+			System.out.print("Bad thing happened!");
+		
+		// reverse line list for executing
+		Collections.reverse(lineList);
+		System.out.print("Split successfully!\n");
+		//System.out.print(lineList.toString());
+		//System.out.print("\n");
+		execute(inStream);
 		// check every token's type and execute
 
 	}
@@ -106,39 +111,45 @@ public class Parser {
 	{
 		MUAValue tmpVal;
 		String type;
-		for(String token : tokenList)
+		
+		for(ArrayList<String> line : lineList)
 		{
-			type = tokenTypeCheck(token);
-			// if it's a MUAValue, push it into stack
-			switch(type) {
-				case "Word":
-					// delete " here
-					tmpVal = new MUAWord(token.substring(1), space);
-					stackVal.push(tmpVal);
-					break;
-				case "Number":
-					tmpVal = new MUANumber(token);
-					stackVal.push(tmpVal);
-					break;
-				case "Bool":
-					tmpVal = new MUABool(token);
-					stackVal.push(tmpVal);
-					break;
-				case "List":
-					tmpVal = new MUAList(token);
-					stackVal.push(tmpVal);
-					break;
-				case "Operation":
-					Operation.operate(this, token, space, inStream);
-					break;
-				//case "Function":
-					// fetch the corresponding list
-					// new parser with the original spcae and a new stack needed
-					// scope belongs to parser
-					//MUAFunc.funcExecute(this, token, space, inStream);
-					//break;
-				default:break;
+			for(String token : line)
+			{
+				type = tokenTypeCheck(token);
+				// if it's a MUAValue, push it into stack
+				switch(type) 
+				{
+					case "Word":
+						// delete " here
+						tmpVal = new MUAWord(token.substring(1), space);
+						stackVal.push(tmpVal);
+						break;
+					case "Number":
+						tmpVal = new MUANumber(token);
+						stackVal.push(tmpVal);
+						break;
+					case "Bool":
+						tmpVal = new MUABool(token);
+						stackVal.push(tmpVal);
+						break;
+					case "List":
+						tmpVal = new MUAList(token);
+						stackVal.push(tmpVal);
+						break;
+					case "Operation":
+						Operation.operate(this, token, space, inStream);
+						break;
+					//case "Function":
+						// fetch the corresponding list
+						// new parser with the original spcae and a new stack needed
+						// scope belongs to parser
+						//MUAFunc.funcExecute(this, token, space, inStream);
+						//break;
+					default:break;
+				}	
 			}
+			stackVal.clear();
 		}
 	}
 	
@@ -341,11 +352,12 @@ public class Parser {
 			case "Operation":
 				if(token.equals("make")||token.equals("add")||token.equals("sub")||token.equals("mul")
 					||token.equals("div")||token.equals("mod")||token.equals("eq")||token.equals("gt")
-					||token.equals("lt")||token.equals("and")||token.equals("or"))
+					||token.equals("lt")||token.equals("and")||token.equals("or")
+					||token.equals("repeat"))
 					return 2;
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
 					||token.equals("print")||token.equals("read")||token.equals("readlist")
-					||token.equals("repeat")||token.equals("not"))
+					||token.equals("not"))
 					return 1;
 				else if(token.equals("if"))
 					return 3;
