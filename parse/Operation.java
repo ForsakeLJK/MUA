@@ -125,6 +125,8 @@ public class Operation {
 		MUAWord name = null;
 		MUAValue bindVal = null;
 		MUAList tmpList1 = null;
+		MUANumber tmpNum1 = null;
+		Parser tmpParser = null;
 		
 		String tmpStr;
 		
@@ -163,6 +165,25 @@ public class Operation {
 				tmpStr += " ]";  // leave a space before ]
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
+				break;
+			case "repeat":
+				// test code:
+				// make "a 1
+				// repeat 4 [make "a add :a 1 print :a]
+				// result: 2 3 4 5
+				tmpParser = new Parser(space);
+				tmpNum1 = (MUANumber)p.stackPop();  // repeat times
+				tmpList1 = (MUAList)p.stackPop(); // repeat code
+				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1);  // code to repeat
+				
+				System.out.print("code to run is:\n");
+				System.out.print(tmpStr+"\n");
+				// repeat codes tmpNum1 times
+				for(int i = 0; i<(int)tmpNum1.getVal(); i++)
+				{
+					tmpParser.parse(tmpStr, inStream);
+				}
+				
 				break;
 				
 		}
