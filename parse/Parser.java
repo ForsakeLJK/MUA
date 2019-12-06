@@ -156,11 +156,11 @@ public class Parser {
 						// fetch arglist
 						// bind arg to tmpSpace
 						DataSpace tmpSpace = new DataSpace();
-						bindArg(token, tmpSpace);
+						String f_code = bindArgAndFetchCode(token, tmpSpace);
 						// new parser with space and tmpSpace
 						// fetch code
 						// parse
-						System.out.println("do nothing");
+						System.out.println("Code to run: " + f_code);
 						//DataSpace tmpSpace = new DataSpace();
 						//Parser tmpParser = new Parser();
 						break;
@@ -179,7 +179,7 @@ public class Parser {
 	}
 	
 
-	private void bindArg(String token, DataSpace newSpace) {
+	private String bindArgAndFetchCode(String token, DataSpace newSpace) {
 		// bind arg to this function
 		MUAWord f_name = new MUAWord(token, space, localSpace);
 		MUAList f_list = (MUAList)f_name.fetchBindVal();
@@ -187,19 +187,24 @@ public class Parser {
 		// first pair of [] must be argList
 		String f_argList = f_list_content.substring(f_list_content.indexOf('[') + 1, f_list_content.indexOf(']', f_list_content.indexOf('[')));
 		MUAWord arg_name = null;
+		String f_code = f_list_content.substring(f_list_content.indexOf('[', f_list_content.indexOf(']'))+1, f_list_content.indexOf(']', f_list_content.indexOf('[', f_list_content.indexOf(']'))));
 		
 		Pattern emptyPattern = Pattern.compile("[\\s+]?");
 		if(emptyPattern.matcher(f_argList).matches())
 			; // do nothing
-		else
+		else   // bind into local
 		{
 			String[] splitted = f_argList.trim().split("\\s+");
 			//cnt = splitted.length;
 			for(String str : splitted) {
 				//arg_name = new MUAWord();
+				arg_name = new MUAWord(str, space, newSpace);
+				arg_name.setBond(stackVal.pop());
 				//newSpace.addBond(, stackVal.pop());
 			}
 		}
+		
+		return f_code;
 	}
 
 	public String tokenTypeCheck(String token)
