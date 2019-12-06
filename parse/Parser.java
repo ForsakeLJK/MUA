@@ -38,7 +38,7 @@ public class Parser {
 			"eq", "gt", "lt",
 			"and", "or", 
 			"not",
-			"if", "output"
+			"if"
 			);
 		operationList.addAll(list);
 		
@@ -56,8 +56,10 @@ public class Parser {
 		return stackVal.pop();
 	}
 	
-	public void parse(String in, Scanner inStream)
+	public MUAValue parse(String in, Scanner inStream)
 	{
+		MUAValue retVal = null;
+		
 		boolean redo = false;
 		//Init vars
 		tokenList = new ArrayList<String>();
@@ -109,22 +111,25 @@ public class Parser {
 		//System.out.print("Split successfully!\n");
 		//System.out.print(lineList.toString() + "\n");
 		//System.out.print("\n");
-		execute(inStream);
+		retVal = execute(inStream);
 		// check every token's type and execute
-
+		
+		return retVal;
 	}
 	
-	private void execute(Scanner inStream)
+	private MUAValue execute(Scanner inStream)
 	{
 		MUAValue tmpVal;
 		String type;
-		boolean stop_flag = false;  
+		boolean stop_flag = false; 
+		MUAValue retVal = null;
 		
 		for(ArrayList<String> line : lineList)
 		{
 			for(String token : line)
 			{
 				type = tokenTypeCheck(token);
+				MUAValue tmpRetVal = null;
 				// if it's a MUAValue, push it into stack
 				switch(type) 
 				{
@@ -163,11 +168,20 @@ public class Parser {
 						System.out.println("Code to run: " + f_code);
 						//DataSpace tmpSpace = new DataSpace();
 						Parser tmpParser = new Parser(space, tmpSpace);
-						tmpParser.parse(f_code, inStream);
+						tmpRetVal  = tmpParser.parse(f_code, inStream);
+						
+						// if retVal == null ?
+						if(retValCnt(token, "Function")==0)
+							;
+						else  // if retVal exists, push
+							stackVal.push(tmpRetVal);
 						
 						break;
 					case "Stop":
 						stop_flag = true;
+						break;
+					case "Output":
+						retVal = stackVal.pop();
 						break;
 					default:break;
 				}
@@ -178,6 +192,8 @@ public class Parser {
 			if(stop_flag)
 				break;
 		}
+		
+		return retVal;
 	}
 	
 
@@ -189,7 +205,8 @@ public class Parser {
 		// first pair of [] must be argList
 		String f_argList = f_list_content.substring(f_list_content.indexOf('[') + 1, f_list_content.indexOf(']', f_list_content.indexOf('[')));
 		MUAWord arg_name = null;
-		String f_raw_code = f_list_content.substring(f_list_content.indexOf(']')+1, f_list_content.length()-1);
+		String f_raw_code = f_list_content.substring(f_list_content.indexOf(']')+1, f_list_content.length());
+		//System.out.println(f_raw_code);
 		String f_code = f_raw_code.substring(f_raw_code.indexOf('[')+1, f_raw_code.lastIndexOf(']'));
 		
 		Pattern emptyPattern = Pattern.compile("[\\s+]?");
@@ -228,6 +245,8 @@ public class Parser {
 		//else if(isFunction(token))  // check if it denotes a function
 		else if(token.equals("stop"))
 			type = "Stop";
+		else if(token.equals("output"))
+			type = "Output";
 		else if(f_name.checkBond())
 			type = "Function";
 		else
@@ -383,7 +402,7 @@ public class Parser {
 		{
 			case "Operation":
 				if(token.equals("make") || token.equals("erase")||token.equals("print")
-						||token.equals("repeat")||token.equals("if")||token.equals("output"))
+						||token.equals("repeat")||token.equals("if"))
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
@@ -402,6 +421,8 @@ public class Parser {
 					return 0;				
 				//break;
 			case "Stop":
+				return 0;
+			case "Output":
 				return 0;
 			default:
 				break;
@@ -443,7 +464,7 @@ public class Parser {
 					||token.equals("repeat"))
 					return 2;
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
-					||token.equals("print")||token.equals("output")
+					||token.equals("print")
 					||token.equals("not"))
 					return 1;
 				else if(token.equals("if"))
@@ -462,6 +483,8 @@ public class Parser {
 				return argCnt(f_argList);
 				
 				//break;
+			case "Output":
+				return 1;
 			case "Stop":
 				return 0;
 			default:
@@ -485,7 +508,7 @@ public class Parser {
 			tmpList.add(token);
 			tmpType = tokenTypeCheck(token);
 			// here type "funtion" means it's neither a MUAValue nor a Operation
-			if(tmpType.equals("Operation") || tmpType.equals("Function") || tmpType.equals("Stop"))  
+			if(tmpType.equals("Operation") || tmpType.equals("Function") || tmpType.equals("Stop") || tmpType.equals("Output"))  
 			{
 				// Need to check how many return values it has	
 				// -1 denotes error

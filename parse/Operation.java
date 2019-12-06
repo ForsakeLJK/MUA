@@ -212,9 +212,8 @@ public class Operation {
 				{
 					tmpParser.parse(tmpStr1, inStream);
 				}
-			case "output":
-				// add code later
 				break;
+
 				
 		}
 	}
