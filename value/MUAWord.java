@@ -4,9 +4,11 @@ import src.mua.dataSpace.DataSpace;
 
 public class MUAWord extends MUAValue{
 	private String content = "";
-	private String bindLocation = "";
-	private boolean hasBond = false;
-	private MUAValue bindVal = null;
+	//private String bindLocation = "";
+	private boolean hasBondLoc = false;
+	private boolean hasBondGlo = false;
+	private MUAValue bindValLoc = null;
+	private MUAValue bindValGlo = null;
 	private DataSpace space = null;
 	private DataSpace localSpace = null;
 	
@@ -22,56 +24,63 @@ public class MUAWord extends MUAValue{
 	
 	public void eraseBond()
 	{
-		if(bindLocation.equals("global"))
-			space.deleteBond(this);
-		else if(bindLocation.equals("local"))
-			localSpace.deleteBond(this);
+		//if(bindLocation.equals("global"))
+		//	space.deleteBond(this);
+		//else if(bindLocation.equals("local"))
+		localSpace.deleteBond(this);
 
-		bindVal = null;
-		hasBond = false;
+		//bindValLoc = null;
+		//hasBondLoc = false;
+		
+		findBond();  // reset bondVal etc. to avoid local == global 
 	}
 	
 	public boolean checkBond()
 	{
-		return hasBond;
+		return hasBondLoc || hasBondGlo;
 	}
 	
 	public MUAValue fetchBindVal()
 	{
-		return bindVal;
+		if(hasBondLoc)
+			return bindValLoc;
+		else if(hasBondGlo)
+			return bindValGlo;
+		
+		return null;
 	}
 	
 	private void findBond()
 	{
 		if(localSpace.inNameSpace(this)) {
-			hasBond = true;
-			bindVal = localSpace.fetchVal(this);
-			bindLocation = "local";
+			hasBondLoc = true;
+			bindValLoc = localSpace.fetchVal(this);
+			//bindLocation = "local";
 		}
 		else if(space.inNameSpace(this))
 		{
-			hasBond = true;
-			bindVal = space.fetchVal(this);
-			bindLocation = "global";
+			hasBondGlo = true;
+			bindValGlo = space.fetchVal(this);
+			//bindLocation = "global";
 		}
 	}
 	
 	public void setBond(MUAValue val)
 	{
-		if(!hasBond) // add to local
+		if(!hasBondLoc) // add to local
 		{	
 			localSpace.addBond(this, val);			
 		}
 		else
 		{
-			if(bindLocation.equals("global"))
-				space.replaceBond(this, val);
-			else if(bindLocation.equals("local"))
+			//if(bindLocation.equals("global"))
+			//	space.replaceBond(this, val);
+			//else if(bindLocation.equals("local"))
 				localSpace.replaceBond(this, val);
 		}
 
-		bindVal = val;
-		hasBond = true;
+		bindValLoc = val;
+		hasBondLoc = true;
 	}
 	
 	// check if this word can be converted to number or bool
