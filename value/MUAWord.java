@@ -65,8 +65,11 @@ public class MUAWord extends MUAValue{
 		}
 	}
 	
-	public void setBond(MUAValue val)
+	public void setBond(MUAValue val, DataSpace loc)
 	{
+		// set the space 
+		localSpace = loc;
+		
 		if(!hasBondLoc) // add to local
 		{	
 			localSpace.addBond(this, val);			

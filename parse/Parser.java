@@ -188,12 +188,12 @@ public class Parser {
 						retVal = stackVal.pop();
 						break;
 					case "Export":
-						MUAWord expVar = (MUAWord) stackVal.pop();
-						MUAValue expVal = localSpace.fetchVal(expVar);
-						if(space.inNameSpace(expVar))
-							space.replaceBond(expVar, expVal);
-						else
-							space.addBond(expVar, expVal);
+						 MUAWord expVar = (MUAWord) stackVal.pop();
+						 MUAValue expVal = localSpace.fetchVal(expVar);
+						 if(space.inNameSpace(expVar))
+						 	space.replaceBond(expVar, expVal);
+						 else
+						 	space.addBond(expVar, expVal);
 						break;
 					case "If":
 						/* test code:
@@ -260,7 +260,7 @@ public class Parser {
 			for(String str : splitted) {
 				//arg_name = new MUAWord();
 				arg_name = new MUAWord(str, space, newSpace);
-				arg_name.setBond(stackVal.pop());
+				arg_name.setBond(stackVal.pop(), newSpace);
 				//newSpace.addBond(, stackVal.pop());
 			}
 		}
