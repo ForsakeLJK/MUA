@@ -181,40 +181,14 @@ public class Operation {
 				tmpList1 = (MUAList)p.stackPop(); // repeat code
 				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1);  // code to repeat
 				
-				System.out.print("code to run is:\n");
-				System.out.print(tmpStr+"\n");
+				//System.out.print("code to run is:\n");
+				//System.out.print(tmpStr+"\n");
 				// repeat codes tmpNum1 times
 				for(int i = 0; i<(int)tmpNum1.getVal(); i++)
 				{
 					tmpParser.parse(tmpStr, inStream);
 				}
 				break;
-			case "if":
-				/* test code:
-					make "n 5
-					print :n
-				    if lt :n 2
-				      [print sub :n 2]
-				      [print add :n 1]
-				 */
-				tmpParser = new Parser(space, localSpace);  // space in if is the same as its parent parser
-				tmpBool1 = (MUABool)p.stackPop(); // boolean
-				tmpList1 = (MUAList)p.stackPop();  // condition 1 (when true)
-				tmpList2 = (MUAList)p.stackPop();  // condition 2 (when false)
-				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1); // code 1
-				tmpStr1 = tmpList2.getList().substring(1, tmpList2.getList().length()-1); // code 2
-				// run conditional code
-				if(tmpBool1.getVal())
-				{
-					tmpParser.parse(tmpStr, inStream);
-				}
-				else
-				{
-					tmpParser.parse(tmpStr1, inStream);
-				}
-				break;
-
-				
 		}
 	}
 	

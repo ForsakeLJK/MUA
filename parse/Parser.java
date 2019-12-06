@@ -37,8 +37,7 @@ public class Parser {
 			"add", "sub", "mul", "div", "mod",
 			"eq", "gt", "lt",
 			"and", "or", 
-			"not",
-			"if"
+			"not"
 			);
 		operationList.addAll(list);
 		
@@ -130,6 +129,11 @@ public class Parser {
 			{
 				type = tokenTypeCheck(token);
 				MUAValue tmpRetVal = null;
+				MUABool tmpBool1;
+				MUAList tmpList1;
+				MUAList tmpList2;
+				String tmpStr;
+				String tmpStr1;
 				// if it's a MUAValue, push it into stack
 				switch(type) 
 				{
@@ -165,7 +169,7 @@ public class Parser {
 						// new parser with space and tmpSpace
 						// fetch code
 						// parse
-						System.out.println("Code to run: " + f_code);
+						//System.out.println("Code to run: " + f_code);
 						//DataSpace tmpSpace = new DataSpace();
 						Parser tmpParser = new Parser(space, tmpSpace);
 						tmpRetVal  = tmpParser.parse(f_code, inStream);
@@ -182,6 +186,35 @@ public class Parser {
 						break;
 					case "Output":
 						retVal = stackVal.pop();
+						break;
+					case "If":
+						/* test code:
+							make "n 5
+							print :n
+						    if lt :n 2
+						      [print sub :n 2]
+						      [print add :n 1]
+						 */
+						tmpParser = new Parser(space, localSpace);  // space in if is the same as its parent parser
+						tmpBool1 = (MUABool)stackPop(); // boolean
+						tmpList1 = (MUAList)stackPop();  // condition 1 (when true)
+						tmpList2 = (MUAList)stackPop();  // condition 2 (when false)
+						tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1); // code 1
+						tmpStr1 = tmpList2.getList().substring(1, tmpList2.getList().length()-1); // code 2
+						// run conditional code
+						if(tmpBool1.getVal())
+						{
+							tmpRetVal = tmpParser.parse(tmpStr, inStream);
+						}
+						else
+						{
+							tmpRetVal = tmpParser.parse(tmpStr1, inStream);
+						}
+						
+						if(tmpRetVal == null)
+							;
+						else
+							retVal = tmpRetVal;
 						break;
 					default:break;
 				}
@@ -247,6 +280,8 @@ public class Parser {
 			type = "Stop";
 		else if(token.equals("output"))
 			type = "Output";
+		else if(token.equals("if"))
+			type = "If";
 		else if(f_name.checkBond())
 			type = "Function";
 		else
@@ -402,7 +437,7 @@ public class Parser {
 		{
 			case "Operation":
 				if(token.equals("make") || token.equals("erase")||token.equals("print")
-						||token.equals("repeat")||token.equals("if"))
+						||token.equals("repeat"))
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
@@ -423,6 +458,8 @@ public class Parser {
 			case "Stop":
 				return 0;
 			case "Output":
+				return 0;
+			case "If":
 				return 0;
 			default:
 				break;
@@ -467,8 +504,6 @@ public class Parser {
 					||token.equals("print")
 					||token.equals("not"))
 					return 1;
-				else if(token.equals("if"))
-					return 3;
 				else if(token.equals("read")||token.equals("readlist"))
 					return 0;
 				break;
@@ -487,6 +522,8 @@ public class Parser {
 				return 1;
 			case "Stop":
 				return 0;
+			case "If":
+				return 3;
 			default:
 				break;
 		}
@@ -508,7 +545,8 @@ public class Parser {
 			tmpList.add(token);
 			tmpType = tokenTypeCheck(token);
 			// here type "funtion" means it's neither a MUAValue nor a Operation
-			if(tmpType.equals("Operation") || tmpType.equals("Function") || tmpType.equals("Stop") || tmpType.equals("Output"))  
+			if(tmpType.equals("Operation") || tmpType.equals("Function") 
+				|| tmpType.equals("Stop") || tmpType.equals("Output") || tmpType.equals("If"))  
 			{
 				// Need to check how many return values it has	
 				// -1 denotes error
