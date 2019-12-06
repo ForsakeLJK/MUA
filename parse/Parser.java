@@ -187,6 +187,14 @@ public class Parser {
 					case "Output":
 						retVal = stackVal.pop();
 						break;
+					case "Export":
+						MUAWord expVar = (MUAWord) stackVal.pop();
+						MUAValue expVal = localSpace.fetchVal(expVar);
+						if(space.inNameSpace(expVar))
+							space.replaceBond(expVar, expVal);
+						else
+							space.addBond(expVar, expVal);
+						break;
 					case "If":
 						/* test code:
 							make "n 5
@@ -282,6 +290,8 @@ public class Parser {
 			type = "Output";
 		else if(token.equals("if"))
 			type = "If";
+		else if(token.equals("export"))
+			type = "Export";
 		else if(f_name.checkBond())
 			type = "Function";
 		else
@@ -461,6 +471,8 @@ public class Parser {
 				return 0;
 			case "If":
 				return 0;
+			case "Export":
+				return 0;
 			default:
 				break;
 		}
@@ -524,6 +536,8 @@ public class Parser {
 				return 0;
 			case "If":
 				return 3;
+			case "Export":
+				return 1;
 			default:
 				break;
 		}
@@ -546,7 +560,8 @@ public class Parser {
 			tmpType = tokenTypeCheck(token);
 			// here type "funtion" means it's neither a MUAValue nor a Operation
 			if(tmpType.equals("Operation") || tmpType.equals("Function") 
-				|| tmpType.equals("Stop") || tmpType.equals("Output") || tmpType.equals("If"))  
+				|| tmpType.equals("Stop") || tmpType.equals("Output") 
+				|| tmpType.equals("If") || tmpType.equals("Export"))  
 			{
 				// Need to check how many return values it has	
 				// -1 denotes error
