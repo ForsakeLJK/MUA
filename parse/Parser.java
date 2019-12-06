@@ -106,8 +106,8 @@ public class Parser {
 		
 		// reverse line list for executing
 		Collections.reverse(lineList);
-		System.out.print("Split successfully!\n");
-		System.out.print(lineList.toString() + "\n");
+		//System.out.print("Split successfully!\n");
+		//System.out.print(lineList.toString() + "\n");
 		//System.out.print("\n");
 		execute(inStream);
 		// check every token's type and execute
@@ -162,7 +162,9 @@ public class Parser {
 						// parse
 						System.out.println("Code to run: " + f_code);
 						//DataSpace tmpSpace = new DataSpace();
-						//Parser tmpParser = new Parser();
+						Parser tmpParser = new Parser(space, tmpSpace);
+						tmpParser.parse(f_code, inStream);
+						
 						break;
 					case "Stop":
 						stop_flag = true;
@@ -187,7 +189,8 @@ public class Parser {
 		// first pair of [] must be argList
 		String f_argList = f_list_content.substring(f_list_content.indexOf('[') + 1, f_list_content.indexOf(']', f_list_content.indexOf('[')));
 		MUAWord arg_name = null;
-		String f_code = f_list_content.substring(f_list_content.indexOf('[', f_list_content.indexOf(']'))+1, f_list_content.indexOf(']', f_list_content.indexOf('[', f_list_content.indexOf(']'))));
+		String f_raw_code = f_list_content.substring(f_list_content.indexOf(']')+1, f_list_content.length()-1);
+		String f_code = f_raw_code.substring(f_raw_code.indexOf('[')+1, f_raw_code.lastIndexOf(']'));
 		
 		Pattern emptyPattern = Pattern.compile("[\\s+]?");
 		if(emptyPattern.matcher(f_argList).matches())
