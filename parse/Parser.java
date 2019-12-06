@@ -38,7 +38,7 @@ public class Parser {
 			"eq", "gt", "lt",
 			"and", "or", 
 			"not",
-			"if"
+			"if", "output"
 			);
 		operationList.addAll(list);
 		
@@ -66,7 +66,8 @@ public class Parser {
 		//ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
 		
 		str = in;
-		preprocess(); // do nothing temporarily
+		str = preprocess(str); // do nothing temporarily
+		//System.out.print("After preprocessing: " + str + "\n");
 		lexer(inStream);      //
 		Collections.reverse(tokenList);  // reverse the whole list
 		//System.out.print("after lexing and reversing:\n");
@@ -88,7 +89,7 @@ public class Parser {
 				str += " ";
 				str += inStream.nextLine();
 				// redo
-				preprocess();
+				preprocess(str);
 				lexer(inStream);
 				Collections.reverse(tokenList);  // reverse the whole list
 				//System.out.print("after lexing and reversing:\n");
@@ -106,7 +107,7 @@ public class Parser {
 		// reverse line list for executing
 		Collections.reverse(lineList);
 		System.out.print("Split successfully!\n");
-		//System.out.print(lineList.toString());
+		System.out.print(lineList.toString() + "\n");
 		//System.out.print("\n");
 		execute(inStream);
 		// check every token's type and execute
@@ -117,6 +118,7 @@ public class Parser {
 	{
 		MUAValue tmpVal;
 		String type;
+		boolean stop_flag = false;  
 		
 		for(ArrayList<String> line : lineList)
 		{
@@ -150,23 +152,60 @@ public class Parser {
 						// operate() can access both global and local space
 						Operation.operate(this, token, space, localSpace, inStream);
 						break;
-					//case "Function":
-						// fetch the corresponding list
-						// new parser with the original spcae and a new stack needed
-						// scope belongs to parser
-						//MUAFunc.funcExecute(this, token, space, inStream);
-						//break;
+					case "Function":
+						// fetch arglist
+						// bind arg to tmpSpace
+						DataSpace tmpSpace = new DataSpace();
+						bindArg(token, tmpSpace);
+						// new parser with space and tmpSpace
+						// fetch code
+						// parse
+						System.out.println("do nothing");
+						//DataSpace tmpSpace = new DataSpace();
+						//Parser tmpParser = new Parser();
+						break;
+					case "Stop":
+						stop_flag = true;
+						break;
 					default:break;
-				}	
+				}
+				if(stop_flag)
+					break;
 			}
 			stackVal.clear();
+			if(stop_flag)
+				break;
 		}
 	}
 	
 
+	private void bindArg(String token, DataSpace newSpace) {
+		// bind arg to this function
+		MUAWord f_name = new MUAWord(token, space, localSpace);
+		MUAList f_list = (MUAList)f_name.fetchBindVal();
+		String f_list_content = f_list.toString().substring(1, f_list.toString().length()-1);  // eliminate []
+		// first pair of [] must be argList
+		String f_argList = f_list_content.substring(f_list_content.indexOf('[') + 1, f_list_content.indexOf(']', f_list_content.indexOf('[')));
+		MUAWord arg_name = null;
+		
+		Pattern emptyPattern = Pattern.compile("[\\s+]?");
+		if(emptyPattern.matcher(f_argList).matches())
+			; // do nothing
+		else
+		{
+			String[] splitted = f_argList.trim().split("\\s+");
+			//cnt = splitted.length;
+			for(String str : splitted) {
+				//arg_name = new MUAWord();
+				//newSpace.addBond(, stackVal.pop());
+			}
+		}
+	}
+
 	public String tokenTypeCheck(String token)
 	{
 		String type = "";
+		MUAWord f_name = new MUAWord(token, space, localSpace);
 		
 		if(token.charAt(0) == '\"')
 			type = "Word";
@@ -179,10 +218,12 @@ public class Parser {
 		else if(isOp(token))
 			type = "Operation";
 		//else if(isFunction(token))  // check if it denotes a function
-		else
+		else if(token.equals("stop"))
+			type = "Stop";
+		else if(f_name.checkBond())
 			type = "Function";
-		//else
-			//type = "Unknown";
+		else
+			type = "Unknown";
 		
 		return type;
 	}
@@ -212,9 +253,12 @@ public class Parser {
 	//private boolean isList()
 	// delete "//" , find lists, substitute : to thing "
 	// 		about lists: rewrite a split
-	private void preprocess()
+	private String preprocess(String s)
 	{
 		//str += "wow";
+		s = s.replaceAll("\t", " ");
+		
+		return s;
 	}
 	
 	// substitute : to thing "
@@ -280,7 +324,7 @@ public class Parser {
 							{
 								String tmpStr;
 								tmpStr = inStream.nextLine();
-								//preprocess(tmpStr);
+								tmpStr = preprocess(tmpStr);
 								//tmpStr = "$" + tmpStr ? 
 								str += tmpStr;
 								//str.replace()
@@ -323,13 +367,15 @@ public class Parser {
 	}
 	
 	
+
+	
 	private int retValCnt(String token, String type)
 	{
 		switch(type)
 		{
 			case "Operation":
 				if(token.equals("make") || token.equals("erase")||token.equals("print")
-						||token.equals("repeat")||token.equals("if"))
+						||token.equals("repeat")||token.equals("if")||token.equals("output"))
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
@@ -339,11 +385,43 @@ public class Parser {
 				break;
 			case "Function":
 				// need to add code later
-				break;
+				MUAWord f_name = new MUAWord(token, space, localSpace);
+				MUAList f_list = (MUAList)f_name.fetchBindVal();
+				
+				if(f_list.toString().contains("output"))
+					return 1;
+				else
+					return 0;				
+				//break;
+			case "Stop":
+				return 0;
 			default:
 				break;
 		}
+		
 		return -1; // cnt error
+	}
+	
+	private int argCnt(String argList)
+	{
+		int cnt = 0;
+	
+		Pattern emptyPattern = Pattern.compile("[\\s+]?");
+		if(emptyPattern.matcher(argList).matches())
+			return cnt;
+		else
+		{
+			String[] splitted = argList.trim().split("\\s+");
+			//cnt = splitted.length;
+			for(String str : splitted) {
+				//System.out.println(a);
+				cnt++;
+			}
+			
+			return cnt;
+			//System.out.println(splitted.toString());
+		}
+		//return -1;           
 	}
 	
 	private int operandCnt(String token, String type)
@@ -357,7 +435,7 @@ public class Parser {
 					||token.equals("repeat"))
 					return 2;
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
-					||token.equals("print")
+					||token.equals("print")||token.equals("output")
 					||token.equals("not"))
 					return 1;
 				else if(token.equals("if"))
@@ -367,7 +445,17 @@ public class Parser {
 				break;
 			case "Function":
 				// need to add code later
-				break;
+				MUAWord f_name = new MUAWord(token, space, localSpace);
+				MUAList f_list = (MUAList)f_name.fetchBindVal();
+				String f_code = f_list.toString().substring(1, f_list.toString().length()-1);  // eliminate []
+				// first pair of [] must be argList
+				String f_argList = f_code.substring(f_code.indexOf('[') + 1, f_code.indexOf(']', f_code.indexOf('[')));
+				
+				return argCnt(f_argList);
+				
+				//break;
+			case "Stop":
+				return 0;
 			default:
 				break;
 		}
@@ -389,7 +477,7 @@ public class Parser {
 			tmpList.add(token);
 			tmpType = tokenTypeCheck(token);
 			// here type "funtion" means it's neither a MUAValue nor a Operation
-			if(tmpType.equals("Operation") || tmpType.equals("Function"))  
+			if(tmpType.equals("Operation") || tmpType.equals("Function") || tmpType.equals("Stop"))  
 			{
 				// Need to check how many return values it has	
 				// -1 denotes error
