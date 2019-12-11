@@ -260,7 +260,7 @@ public class Parser {
 			for(String str : splitted) {
 				//arg_name = new MUAWord();
 				arg_name = new MUAWord(str, space, newSpace);
-				arg_name.setBond(stackVal.pop(), newSpace);
+				arg_name.setBond(stackVal.pop(), newSpace, space);
 				//newSpace.addBond(, stackVal.pop());
 			}
 		}

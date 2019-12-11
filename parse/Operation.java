@@ -138,7 +138,7 @@ public class Operation {
 			case "make": 
 				name = (MUAWord) p.stackPop();
 				bindVal = p.stackPop();
-				name.setBond(bindVal, localSpace);
+				name.setBond(bindVal, localSpace, space);
 				break; 
 			case "thing":
 				name = (MUAWord) p.stackPop();

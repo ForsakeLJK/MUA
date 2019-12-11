@@ -57,18 +57,32 @@ public class MUAWord extends MUAValue{
 			bindValLoc = localSpace.fetchVal(this);
 			//bindLocation = "local";
 		}
-		else if(space.inNameSpace(this))
+		else
+		{
+			hasBondLoc = false;
+		}
+		
+		if(space.inNameSpace(this))
 		{
 			hasBondGlo = true;
 			bindValGlo = space.fetchVal(this);
 			//bindLocation = "global";
 		}
+		else
+		{
+
+			hasBondGlo = false;
+		}
 	}
 	
-	public void setBond(MUAValue val, DataSpace loc)
+	public void setBond(MUAValue val, DataSpace loc, DataSpace glo)
 	{
+		
 		// set the space 
 		localSpace = loc;
+		space = glo;
+		
+		findBond();
 		
 		if(!hasBondLoc) // add to local
 		{	
@@ -79,7 +93,7 @@ public class MUAWord extends MUAValue{
 			//if(bindLocation.equals("global"))
 			//	space.replaceBond(this, val);
 			//else if(bindLocation.equals("local"))
-				localSpace.replaceBond(this, val);
+			localSpace.replaceBond(this, val);
 		}
 
 		bindValLoc = val;

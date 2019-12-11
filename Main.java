@@ -95,10 +95,20 @@ public class Main {
 		]
 	]
 	print gcd 36 21
-	
+
+	make "a 7
+	make "let [
+	[e f]
+	[
+	make :e :f
+	export :e
+	]
+	]
+	let "a 8
+	print :a
 */
 	    
-	public static void main(String[] ar6gs) {
+	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
 		DataSpace space = new DataSpace(); // global space 
 		Parser parser = new Parser(space, space);  // main parser, global == local
