@@ -395,7 +395,7 @@ public class Parser {
 							else // try to read multiple-line list
 							{
 								String tmpStr;
-								tmpStr = inStream.nextLine();
+								tmpStr = " " + inStream.nextLine() + " ";
 								tmpStr = preprocess(tmpStr);
 								//tmpStr = "$" + tmpStr ? 
 								str += tmpStr;
