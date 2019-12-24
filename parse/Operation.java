@@ -126,15 +126,11 @@ public class Operation {
 		MUAWord name = null;
 		MUAValue bindVal = null;
 		MUAList tmpList1 = null;
-		MUAList tmpList2 = null;
 		MUANumber tmpNum1 = null;
 		Parser tmpParser = null;
 		
 		String tmpStr;
-		String tmpStr1;
-		//DataSpace tmpSpace;
-		
-			switch(opStr) {
+		switch (opStr) {
 			case "make": 
 				name = (MUAWord) p.stackPop();
 				bindVal = p.stackPop();

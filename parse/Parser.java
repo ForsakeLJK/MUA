@@ -67,7 +67,7 @@ public class Parser {
 		//ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
 		
 		str = in;
-		str = preprocess(str); // do nothing temporarily
+		str = preprocess(str); // eliminate all /t
 		//System.out.print("After preprocessing: " + str + "\n");
 		lexer(inStream);      //
 		Collections.reverse(tokenList);  // reverse the whole list
@@ -335,13 +335,14 @@ public class Parser {
 	
 	// substitute : to thing "
 	// if [] exists, add it into list as a whole 
+	// if () exists, translate the expression into MUA statement
 	private void lexer(Scanner inStream)
 	{
 		int off = 0;
 		int next = 0;
 		int i = 0;
 		Stack<String> tmpStack = new Stack<String>();
-		String tmpSub = "";
+		String tmpSub = ""; // temporary substring
 		// skip all white spaces at beginning
 		while(str.charAt(off) == ' ') 
 			off++;
@@ -349,8 +350,8 @@ public class Parser {
 		while(next != -1 || off != str.length()) {
 			if(next != -1) {
 				tmpSub = str.substring(off, next);
-				// how about :::::d?
-				// : to thing "
+				
+				/* substitute : to thing " */
 				if(tmpSub.charAt(0)==':')
 				{
 					i = 0;
@@ -364,6 +365,8 @@ public class Parser {
 				else
 					tokenList.add(tmpSub);
 				
+				/* update off */
+				/* to next not-whitespace */
 				off = next + 1;
 				if(off < str.length())
 				{
@@ -375,9 +378,11 @@ public class Parser {
 					}				
 				}
 
-				
+				/* update next */
+				/* to next whitespace */
 				if(off < str.length()) 
 				{
+					/* if it's a list */
 					if(str.charAt(off) == '[')
 					{
 						int k = off + 1;
@@ -409,7 +414,7 @@ public class Parser {
 								k++;
 						}
 						if(k < str.length()-1)
-							next = k + 1;  // add the entire [] into list
+							next = k + 1;  // add the entire list including [] into tokenList
 						else
 							next = str.length();
 					}
@@ -419,7 +424,7 @@ public class Parser {
 				else 
 					break;
 			} 
-			else { // the last one
+			else { // the last token
 				tmpSub = str.substring(off, str.length());
 				if(tmpSub.charAt(0)==':')
 				{
@@ -544,6 +549,8 @@ public class Parser {
 		
 		return -1; // -1 denotes error
 	}
+
+	
 	// split tokenList into statements
 	private boolean split()
 	{
@@ -592,16 +599,198 @@ public class Parser {
 		return false;  // success, no redo
 	}
 	
-	
-	
-	public static void main(String[] args) {
-		Scanner in = new Scanner(System.in);
+	/* translate expr into MUA statement */
+	private String translate(String expr)
+	{
+		/* trim whitespace */
+		expr = expr.trim();
+		/* trim outmost parentheses */
+		//expr = expr.substring(expr.indexOf('(')+1, expr.lastIndexOf(')'));
+		/* substitute : into thing " */
+		expr = expr.replaceAll(":", "thing \"");
+		/*
+		 * split expr into token_list 
+		 * need to support negative number
+		 */
+		ArrayList<String> tmpList = new ArrayList<String>();
+		int head = 0;  // first occurence of op
+		int tail = 0;  // first occurence of op from head + 1
+		String tmpStr; // temp substring of expr
+		boolean neg = false;
+		while (true) {
+			if(!neg)
+				tail = findNxtOp(expr, head);
+			else{
+				tail = findNxtOp(expr, tail);
+				neg = false;
+			}
 
-		DataSpace space = new DataSpace();
-		Parser p = new Parser(space, space);
+			if(tail == -1) // end of expr
+				break;
+
+			tmpStr = expr.substring(head+1, tail).trim();
+
+			if(tmpStr.equals("")) // found adjacent operator 
+			{
+				if(expr.charAt(tail) == '-' && Character.isDigit(expr.charAt(tail + 1))) // negative number
+					neg = true;
+				else{ // parenthesis 
+					tmpList.add(expr.substring(head, head + 1));
+					head = tail;
+				}
+				continue;
+			}
+			
+			tmpList.add(expr.substring(head, head+1));
+
+			tmpList.add(tmpStr); // trim
+			
+			//tmpList.add(expr.substring(tail, tail+1));	
+
+			head = tail;
+		}
+	
+		// remove first left parenthesis
+		tmpList.remove(0);
+
+		/* reverse list */
+		Collections.reverse(tmpList);
+
+		/* reverse parenthese */
+		for(int i=0; i<tmpList.size();i++)
+		{
+			if(tmpList.get(i).equals("("))
+				tmpList.set(i, ")");
+			else if(tmpList.get(i).equals(")"))
+				tmpList.set(i, "(");
+		}
+
+		/* transform infix to postfix */
+		Stack<String> opStack = new Stack<String>(); // operator stack
+		ArrayList<String> resList = new ArrayList<String>();
+		for (String string : tmpList) {
+			if(isExprOp(string)) // operator
+			{
+				if(opStack.empty())
+					opStack.push(string);
+				else if(getPrecedence(string) >= getPrecedence(opStack.peek()))
+					opStack.push(string);
+				else if(getPrecedence(string) < getPrecedence(opStack.peek()))
+				{
+					while(!(opStack.empty() || getPrecedence(string) >= getPrecedence(opStack.peek())))
+						resList.add(opStack.pop());
+					opStack.push(string);
+				}
+			}
+			else if(string.equals("("))
+				opStack.push(string);
+			else if(string.equals(")"))
+			{
+				while(!opStack.peek().equals("("))
+					resList.add(opStack.pop());
+				opStack.pop();
+			}
+			else  // operand
+				resList.add(string);
+		}
+		// if stack is not empty, pop and add
+		while(!opStack.empty())
+			resList.add(opStack.pop());
+
+		/* reverse the postfix result */
+		Collections.reverse(resList);
+		// for (String string : resList) {
+		// 	System.out.print(string + "$");
+		// }
+		/* translate each token and link them into a string */
+		String result = "";
+		for (String string : resList) {
+			if(isExprOp(string))
+				result += (" " + exprOpToMUA(string));
+			else
+				result += (" " + string);
+		}
+		/* return the string */ 
+
+		return result;
+	}
+
+	private String exprOpToMUA(String op)
+	{
+		switch (op) {
+			case "+":
+				return "add";
+			case "-":
+				return "min";
+			case "*":
+				return "mul";
+			case "/":
+				return "div";
+			case "%":
+				return "mod";
+			default:
+				return "error";
+		}
+	}
+
+	private int getPrecedence(String op)
+	{
+		if(op.equals("+")|| op.equals("-"))
+			return 1;
+		else if(op.equals("*")|| op.equals("/")|| op.equals("%"))
+			return 2;
+		else
+			return 0; // error 
 		
-		String testLine = in.nextLine();
-		p.parse(testLine, in);
+	}
+
+	private boolean isExprOp(String str)
+	{
+		return str.equals("+") || str.equals("-") || str.equals("*") || str.equals("/") || str.equals("%");
+	}
+
+	/* find index of next op in expr, from head+1 */
+	private int findNxtOp(String expr, int head)
+	{
+		ArrayList<Integer> array = new ArrayList<Integer>();
+
+		if(expr.indexOf('+', head+1)!=-1)
+			array.add(expr.indexOf('+', head + 1));
+		if (expr.indexOf('-', head + 1) != -1)
+			array.add(expr.indexOf('-', head + 1));
+		if(expr.indexOf('*', head + 1) != -1)
+			array.add(expr.indexOf('*', head + 1));
+		if(expr.indexOf('/', head + 1) != -1)
+			array.add(expr.indexOf('/', head + 1));
+		if (expr.indexOf('%', head + 1) != -1)
+			array.add(expr.indexOf('%', head + 1));
+		if (expr.indexOf('(', head + 1) != -1)
+			array.add(expr.indexOf('(', head + 1));
+		if (expr.indexOf(')', head + 1) != -1)
+			array.add(expr.indexOf(')', head + 1));
+
+
+		if(!array.isEmpty())
+			Collections.sort(array);
+		else // no op found, return -1
+			return -1;
+
+		
+		return array.get(0);
+	}
+
+
+	public static void main(String[] args) {
+		//Scanner in = new Scanner(System.in);
+
+		// DataSpace space = new DataSpace();
+		// Parser p = new Parser(space, space);
+		
+		//String testLine = in.nextLine();
+		//System.out.println(translate(testLine));
+		//translate(testLine);
+		//in.close();
+		//p.parse(testLine, in);
 		//p.split();
 
 

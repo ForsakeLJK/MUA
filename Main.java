@@ -50,8 +50,8 @@ public class Main {
 	]
 	f 1
 	*/
-
-/*Test Code:
+	/*
+	Test Code3 :
 	make "a 1
 	repeat 5 [make "a add :a 1 print :a]
 	print :a
@@ -107,7 +107,20 @@ public class Main {
 	let "a 8
 	print :a
 */
-	    
+	/* 
+	test code 3:
+	make "a 2
+	make "a (:a+3)
+	print :a
+	make "f [
+ 		[a]
+ 		[output (:a*:a)]
+	]
+	print f 2
+	print (f 2 * 4)
+	print (2*(2+3)/4)	
+	*/ 
+	  
 	public static void main(String[] args) {
 		Scanner in = new Scanner(System.in);
 		DataSpace space = new DataSpace(); // global space 
