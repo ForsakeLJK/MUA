@@ -350,7 +350,8 @@ public class Parser {
 		while(next != -1 || off != str.length()) {
 			if(next != -1) {
 				tmpSub = str.substring(off, next);
-				
+				tmpSub = tmpSub.trim();
+
 				/* substitute : to thing " */
 				if(tmpSub.charAt(0)==':')
 				{
@@ -361,6 +362,11 @@ public class Parser {
 						i++;
 					}
 					tokenList.add("\""+ tmpSub.substring(i));
+				}
+				else if(tmpSub.charAt(0)=='(')
+				{
+					tmpSub = translate(tmpSub);
+					tokenList.add(tmpSub.trim());
 				}
 				else
 					tokenList.add(tmpSub);
@@ -418,6 +424,38 @@ public class Parser {
 						else
 							next = str.length();
 					}
+					else if(str.charAt(off) == '(')
+					{
+						int k = off + 1;
+						tmpStack.push("(");
+						// find the matching )
+						while (true) {
+							if (k < str.length()) {
+								if (str.charAt(k) == '(')
+									tmpStack.push("(");
+								else if (str.charAt(k) == ')')
+									tmpStack.pop();
+							} else // try to read multiple-line list
+							{
+								String tmpStr;
+								tmpStr = " " + inStream.nextLine() + " ";
+								tmpStr = preprocess(tmpStr);
+								// tmpStr = "$" + tmpStr ?
+								str += tmpStr;
+								// str.replace()
+								continue;
+							}
+
+							if (tmpStack.empty())
+								break;
+							else
+								k++;
+						}
+						if (k < str.length() - 1)
+							next = k + 1; // add the entire list including () into tokenList
+						else
+							next = str.length();
+					}
 					else
 						next = str.indexOf(" ", off);  
 				}
@@ -435,6 +473,10 @@ public class Parser {
 						i++;
 					}
 					tokenList.add("\""+ tmpSub.substring(i));
+				}
+				else if (tmpSub.charAt(0) == '(') {
+					tmpSub = translate(tmpSub);
+					tokenList.add(tmpSub.trim());
 				}
 				else
 					tokenList.add(tmpSub);
