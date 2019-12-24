@@ -71,9 +71,9 @@ public class Parser {
 		//System.out.print("After preprocessing: " + str + "\n");
 		lexer(inStream);      //
 		Collections.reverse(tokenList);  // reverse the whole list
-		//System.out.print("after lexing and reversing:\n");
-		//System.out.print(tokenList.toString());
-		//System.out.print("\n");
+		// System.out.print("after lexing and reversing:\n");
+		// System.out.print(tokenList.toString());
+		// System.out.print("\n");
 		
 		redo = split();
 		
@@ -365,8 +365,9 @@ public class Parser {
 				}
 				else if(tmpSub.charAt(0)=='(')
 				{
-					tmpSub = translate(tmpSub);
-					tokenList.add(tmpSub.trim());
+					translate(tmpSub);
+					
+					
 				}
 				else
 					tokenList.add(tmpSub);
@@ -475,8 +476,8 @@ public class Parser {
 					tokenList.add("\""+ tmpSub.substring(i));
 				}
 				else if (tmpSub.charAt(0) == '(') {
-					tmpSub = translate(tmpSub);
-					tokenList.add(tmpSub.trim());
+					translate(tmpSub);
+
 				}
 				else
 					tokenList.add(tmpSub);
@@ -484,8 +485,6 @@ public class Parser {
 			}
 		}
 	}
-	
-	
 
 	
 	private int retValCnt(String token, String type)
@@ -641,8 +640,9 @@ public class Parser {
 		return false;  // success, no redo
 	}
 	
-	/* translate expr into MUA statement */
-	private String translate(String expr)
+	/* translate expr into MUA tokens */
+	/* and add them into global token list */
+	private void translate(String expr)
 	{
 		/* trim whitespace */
 		expr = expr.trim();
@@ -745,16 +745,62 @@ public class Parser {
 		// 	System.out.print(string + "$");
 		// }
 		/* translate each token and link them into a string */
-		String result = "";
 		for (String string : resList) {
 			if(isExprOp(string))
-				result += (" " + exprOpToMUA(string));
+				tokenList.add(exprOpToMUA(string));
+			else if(isNum(string))
+				tokenList.add(string);
 			else
-				result += (" " + string);
+				lazyLex(string);
+			
 		}
 		/* return the string */ 
 
-		return result;
+	}
+
+	private void lazyLex(String str)
+	{
+		int off = 0;
+		int next = 0;
+
+		String tmpSub = ""; // temporary substring
+		// skip all white spaces at beginning
+		while (str.charAt(off) == ' ')
+			off++;
+		next = str.indexOf(" ", off);
+		while (next != -1 || off != str.length()) {
+			if (next != -1) {
+				tmpSub = str.substring(off, next);
+				tmpSub = tmpSub.trim();
+
+				tokenList.add(tmpSub);
+
+				/* update off */
+				/* to next not-whitespace */
+				off = next + 1;
+				if (off < str.length()) {
+					while (str.charAt(off) == ' ') {
+						off++;
+						if (off >= str.length())
+							break;
+					}
+				}
+
+				/* update next */
+				/* to next whitespace */
+				if (off < str.length()) 
+				{
+						next = str.indexOf(" ", off);
+				} 
+				else
+					break;
+			} 
+			else { // the last token
+				tmpSub = str.substring(off, str.length());
+				tokenList.add(tmpSub);
+				off = str.length();
+			}
+		}
 	}
 
 	private String exprOpToMUA(String op)
@@ -763,7 +809,7 @@ public class Parser {
 			case "+":
 				return "add";
 			case "-":
-				return "min";
+				return "sub";
 			case "*":
 				return "mul";
 			case "/":
