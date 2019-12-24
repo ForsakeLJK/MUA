@@ -682,6 +682,11 @@ public class Parser {
 				}
 				continue;
 			}
+			else if(expr.charAt(tail) == '-' && !isNum(tmpStr) && !tmpStr.contains("thing"))
+			{
+				neg = true;
+				continue;
+			}
 			
 			tmpList.add(expr.substring(head, head+1));
 
