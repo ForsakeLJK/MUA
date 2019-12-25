@@ -16,7 +16,7 @@ public class MUAWord extends MUAValue{
 	// use content to construct
 	public MUAWord(String content, DataSpace space, DataSpace local) {
 		super("Word");
-		this.content = content; // let parser trim \"
+		this.content = content; // let parser trim \" when executing    here content doesn't contain \"
 		this.space = space;
 		this.localSpace = local;
 		findBond();  // check whether it has bond or not

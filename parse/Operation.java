@@ -185,6 +185,20 @@ public class Operation {
 					tmpParser.parse(tmpStr, inStream);
 				}
 				break;
+			case "sentence":
+				tmpStr = "[";
+				tmpStr += fetchStrVal(p.stackPop());
+				tmpStr += " " + fetchStrVal(p.stackPop());
+				tmpStr += "]";
+				tmpList1 = new MUAList(tmpStr);
+				p.stackPush(tmpList1);
+				break;
+			case "list":
+				
+				break;
+			case "join":
+				
+				break;
 		}
 	}
 	

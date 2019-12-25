@@ -33,6 +33,7 @@ public class Parser {
 		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
 			"make", "thing", "erase", "isname", 
+			"sentence", "list", "join",
 			"print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
 			"eq", "gt", "lt",
@@ -496,6 +497,7 @@ public class Parser {
 						||token.equals("repeat"))
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
+						|| token.equals("sentence") || token.equals("list") || token.equals("join")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
 						|| token.equals("eq")||token.equals("gt")||token.equals("lt")||token.equals("and")||token.equals("or")
 						|| token.equals("not"))
@@ -554,6 +556,7 @@ public class Parser {
 		{
 			case "Operation":
 				if(token.equals("make")||token.equals("add")||token.equals("sub")||token.equals("mul")
+					||token.equals("sentence") || token.equals("list") || token.equals("join")
 					||token.equals("div")||token.equals("mod")||token.equals("eq")||token.equals("gt")
 					||token.equals("lt")||token.equals("and")||token.equals("or")
 					||token.equals("repeat"))
@@ -641,7 +644,7 @@ public class Parser {
 	}
 	
 	/* translate expr into MUA tokens */
-	/* and add them into global token list */
+	/* and add them into token list */
 	private void translate(String expr)
 	{
 		/* trim whitespace */
