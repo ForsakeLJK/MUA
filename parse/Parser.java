@@ -242,7 +242,7 @@ public class Parser {
 		// bind arg to this function
 		MUAWord f_name = new MUAWord(token, space, localSpace);
 		MUAList f_list = (MUAList)f_name.fetchBindVal();
-		String f_list_content = f_list.toString().substring(1, f_list.toString().length()-1);  // eliminate []
+		String f_list_content = f_list.getList().substring(1, f_list.getList().length()-1);  // eliminate []
 		// first pair of [] must be argList
 		String f_argList = f_list_content.substring(f_list_content.indexOf('[') + 1, f_list_content.indexOf(']', f_list_content.indexOf('[')));
 		MUAWord arg_name = null;
@@ -506,7 +506,7 @@ public class Parser {
 				MUAWord f_name = new MUAWord(token, space, localSpace);
 				MUAList f_list = (MUAList)f_name.fetchBindVal();
 				
-				if(f_list.toString().contains("output"))
+				if(f_list.getList().contains("output"))
 					return 1;
 				else
 					return 0;				
@@ -543,7 +543,7 @@ public class Parser {
 			}
 			
 			return cnt;
-			//System.out.println(splitted.toString());
+			//System.out.println(splitted.getList());
 		}
 		//return -1;           
 	}
@@ -569,7 +569,7 @@ public class Parser {
 				// need to add code later
 				MUAWord f_name = new MUAWord(token, space, localSpace);
 				MUAList f_list = (MUAList)f_name.fetchBindVal();
-				String f_code = f_list.toString().substring(1, f_list.toString().length()-1);  // eliminate []
+				String f_code = f_list.getList().substring(1, f_list.getList().length()-1);  // eliminate []
 				// first pair of [] must be argList
 				String f_argList = f_code.substring(f_code.indexOf('[') + 1, f_code.indexOf(']', f_code.indexOf('[')));
 				

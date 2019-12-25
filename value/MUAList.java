@@ -5,6 +5,7 @@ package src.mua.value;
 public class MUAList extends MUAValue{
 	private String list = "";
 
+	// return string w/ brackets
 	public String getList() {
 		return list;
 	}
@@ -18,8 +19,9 @@ public class MUAList extends MUAValue{
 	}
 	
 	@Override
+	// return string w/o brackets
 	public String toString() {
-		return list;
+		return list.substring(1, list.length()-1);
 	}
 	
 }
