@@ -235,6 +235,12 @@ public class Operation {
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
 				break;
+			case "word":
+				tmpStr = fetchStrVal(p.stackPop()).trim();
+				tmpStr += fetchStrVal(p.stackPop()).trim();
+				tmpWord1 = new MUAWord(tmpStr.trim(), space, localSpace);
+				p.stackPush(tmpWord1);
+				break;
 			case "isempty":
 				tmpVal1 = p.stackPop();
 				switch (tmpVal1.getType()) {

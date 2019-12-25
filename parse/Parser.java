@@ -33,7 +33,7 @@ public class Parser {
 		/*Init parser. Load all operations. Get space.*/
 		List<String> list = Arrays.asList( 
 			"make", "thing", "erase", "isname", 
-			"sentence", "list", "join",
+			"sentence", "list", "join", "word",
 			"isempty", "islist",
 			"print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
@@ -502,7 +502,7 @@ public class Parser {
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
 						|| token.equals("isempty") || token.equals("islist")
-						|| token.equals("sentence") || token.equals("list") || token.equals("join")
+						|| token.equals("sentence") || token.equals("list") || token.equals("join")|| token.equals("word")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
 						|| token.equals("eq")||token.equals("gt")||token.equals("lt")||token.equals("and")||token.equals("or")
 						|| token.equals("not"))
@@ -561,7 +561,7 @@ public class Parser {
 		{
 			case "Operation":
 				if(token.equals("make")||token.equals("add")||token.equals("sub")||token.equals("mul")
-					||token.equals("sentence") || token.equals("list") || token.equals("join")
+					||token.equals("sentence") || token.equals("list") || token.equals("join")||token.equals("word")
 					||token.equals("div")||token.equals("mod")||token.equals("eq")||token.equals("gt")
 					||token.equals("lt")||token.equals("and")||token.equals("or")
 					||token.equals("repeat"))
