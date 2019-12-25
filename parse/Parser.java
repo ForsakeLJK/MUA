@@ -173,6 +173,9 @@ public class Parser {
 						// parse
 						//System.out.println("Code to run: " + f_code);
 						//DataSpace tmpSpace = new DataSpace();
+						if(f_code.trim().isEmpty())
+							break;
+
 						Parser tmpParser = new Parser(space, tmpSpace);
 						tmpRetVal  = tmpParser.parse(f_code, inStream);
 						

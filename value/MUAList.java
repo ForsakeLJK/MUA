@@ -1,5 +1,7 @@
 package src.mua.value;
 
+import java.util.ArrayList;
+
 //import java.util.ArrayList;
 
 public class MUAList extends MUAValue{
@@ -24,6 +26,13 @@ public class MUAList extends MUAValue{
 		if(cont.trim().isEmpty())
 			return true;
 		return false;
+	}
+
+	public ArrayList<MUAValue> lexListContent()
+	{
+		ArrayList<MUAValue> res = new ArrayList<MUAValue>();
+
+		return res;
 	}
 	
 	@Override
