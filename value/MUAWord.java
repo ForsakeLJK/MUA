@@ -133,6 +133,11 @@ public class MUAWord extends MUAValue{
 		return content;
 	}
 
+	public boolean isEmpty()
+	{
+		return content.trim().isEmpty();
+	}
+
 	public static void main(String[] args)
 	{
 		

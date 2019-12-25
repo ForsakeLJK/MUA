@@ -236,8 +236,19 @@ public class Operation {
 				p.stackPush(tmpList1);
 				break;
 			case "isempty":
-				tmpList1 = (MUAList)p.stackPop();
-				tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
+				tmpVal1 = p.stackPop();
+				switch (tmpVal1.getType()) {
+					case "Word":
+						tmpWord1 = (MUAWord) tmpVal1;
+						tmpBool1 = new MUABool(String.valueOf(tmpWord1.isEmpty()));
+						break;
+					case "List":
+						tmpList1 = (MUAList) tmpVal1;
+						tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
+						break;
+					default:
+						break;
+				}
 				p.stackPush(tmpBool1);
 				break;
 			case "islist":
