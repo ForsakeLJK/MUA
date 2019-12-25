@@ -226,7 +226,12 @@ public class Operation {
 				p.stackPush(tmpList1);
 				break;
 			case "join":
-				
+				tmpStr = "[";
+				tmpStr += fetchStrVal(p.stackPop()); // it must be a list, and return a string w/o []
+				tmpStr += " " + fetchStrContent(p.stackPop()); // if it's a list, the string'll be w/ []
+				tmpStr += "]";
+				tmpList1 = new MUAList(tmpStr);
+				p.stackPush(tmpList1);
 				break;
 		}
 	}
