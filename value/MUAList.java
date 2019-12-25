@@ -17,6 +17,14 @@ public class MUAList extends MUAValue{
 		super("List");
 		list = content;
 	}
+
+	public boolean isEmpty()
+	{
+		String cont = list.substring(1, list.length()-1);
+		if(cont.trim().isEmpty())
+			return true;
+		return false;
+	}
 	
 	@Override
 	// return string w/o brackets

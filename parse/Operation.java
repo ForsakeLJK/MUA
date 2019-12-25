@@ -233,6 +233,11 @@ public class Operation {
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
 				break;
+			case "isempty":
+				tmpList1 = (MUAList)p.stackPop();
+				tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
+				p.stackPush(tmpBool1);
+				break;
 		}
 	}
 	
