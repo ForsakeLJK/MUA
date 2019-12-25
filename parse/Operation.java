@@ -240,6 +240,14 @@ public class Operation {
 				tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
 				p.stackPush(tmpBool1);
 				break;
+			case "islist":
+				tmpVal1 = p.stackPop();
+				if(tmpVal1.getType().equals("List"))
+					tmpBool1 = new MUABool("true");
+				else
+					tmpBool1 = new MUABool("false");
+				p.stackPush(tmpBool1);
+				break;
 		}
 	}
 	

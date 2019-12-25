@@ -34,7 +34,7 @@ public class Parser {
 		List<String> list = Arrays.asList( 
 			"make", "thing", "erase", "isname", 
 			"sentence", "list", "join",
-			"isempty",
+			"isempty", "islist",
 			"print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
 			"eq", "gt", "lt",
@@ -498,7 +498,7 @@ public class Parser {
 						||token.equals("repeat"))
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
-						|| token.equals("isempty")
+						|| token.equals("isempty") || token.equals("islist")
 						|| token.equals("sentence") || token.equals("list") || token.equals("join")
 						|| token.equals("add")||token.equals("sub")||token.equals("mul")||token.equals("div")||token.equals("mod")
 						|| token.equals("eq")||token.equals("gt")||token.equals("lt")||token.equals("and")||token.equals("or")
@@ -565,7 +565,7 @@ public class Parser {
 					return 2;
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
 					||token.equals("print")
-					||token.equals("isempty")
+					||token.equals("isempty")||token.equals("islist")
 					||token.equals("not"))
 					return 1;
 				else if(token.equals("read")||token.equals("readlist"))
