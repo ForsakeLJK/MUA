@@ -40,6 +40,30 @@ public class Operation {
 		
 		return res;
 	}
+
+	private static String fetchStrContent(MUAValue Val) {
+		String res = "";
+		switch (Val.getType()) {
+		case "Word":
+			MUAWord tmpWord = (MUAWord) Val;
+			res = tmpWord.toString();
+			break;
+		case "Number":
+			MUANumber tmpNum = (MUANumber) Val;
+			res = tmpNum.toString();
+			break;
+		case "Bool":
+			MUABool tmpBool = (MUABool) Val;
+			res = tmpBool.toString();
+			break;
+		case "List":
+			MUAList tmpList = (MUAList) Val;
+			res = tmpList.getList();
+			break;
+		}
+
+		return res;
+	}
 	
 	// space here denotes the global space, whereas localSpace the local space
 	public static void operate (Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream)
@@ -188,13 +212,18 @@ public class Operation {
 			case "sentence":
 				tmpStr = "[";
 				tmpStr += fetchStrVal(p.stackPop());
-				tmpStr += " " + fetchStrVal(p.stackPop());
+				tmpStr += " " + fetchStrVal(p.stackPop());  // if it's a list, the string'll be w/o []
 				tmpStr += "]";
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
 				break;
 			case "list":
-				
+				tmpStr = "[";
+				tmpStr += fetchStrContent(p.stackPop());  // if it's a list, the string'll be w/ []
+				tmpStr += " " + fetchStrContent(p.stackPop());
+				tmpStr += "]";
+				tmpList1 = new MUAList(tmpStr);
+				p.stackPush(tmpList1);
 				break;
 			case "join":
 				
