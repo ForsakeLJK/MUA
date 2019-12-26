@@ -35,6 +35,7 @@ public class Parser {
 			"make", "thing", "erase", "isname", 
 			"sentence", "list", "join", "word",
 			"isempty", "islist",
+			"save", "load", "erall",
 			"first", "butfirst", "butlast",
 			"print", "read", "readlist", "repeat",
 			"add", "sub", "mul", "div", "mod",
@@ -499,7 +500,8 @@ public class Parser {
 		{
 			case "Operation":
 				if(token.equals("make") || token.equals("erase")||token.equals("print")
-						||token.equals("repeat"))
+						||token.equals("repeat")
+						|| token.equals("save") ||token.equals("load")||token.equals("erall")) 
 					return 0;
 				else if(token.equals("thing")||token.equals("isname")||token.equals("read")||token.equals("readlist")
 						|| token.equals("isempty") || token.equals("islist")
@@ -571,10 +573,11 @@ public class Parser {
 				else if(token.equals("thing")||token.equals("erase")||token.equals("isname")
 					||token.equals("print")
 					||token.equals("isempty")||token.equals("islist")
+					||token.equals("save") ||token.equals("load")
 					||token.equals("first")||token.equals("butfirst")||token.equals("butlast")
 					||token.equals("not"))
 					return 1;
-				else if(token.equals("read")||token.equals("readlist"))
+				else if(token.equals("read")||token.equals("readlist") || token.equals("erall"))
 					return 0;
 				break;
 			case "Function":

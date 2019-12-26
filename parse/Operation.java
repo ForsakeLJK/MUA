@@ -344,6 +344,15 @@ public class Operation {
 					p.stackPush(tmpWord1);
 				}
 				break;
+			case "save":
+
+				break;
+			case "load":
+				
+				break;
+			case "erall":
+				
+				break;
 
 			default:
 				System.out.println("opOther-unknown-opStr");
