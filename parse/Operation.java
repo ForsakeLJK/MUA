@@ -272,37 +272,23 @@ public class Operation {
 			case "first":
 				tmpVal1 = p.stackPop();
 
-				switch (tmpVal1.getType()){
-					case "List":
+				if(tmpVal1.getType().equals("List"))
+				{
+					tmpList1 = (MUAList) tmpVal1;
+					tmpValArr = tmpList1.lexListContent(space, localSpace);
+					tmpVal1 = tmpValArr.get(0);
+					if (tmpVal1.getType().equals("List")) {
 						tmpList1 = (MUAList) tmpVal1;
-						tmpValArr = tmpList1.lexListContent(space, localSpace);
-						tmpVal1 = tmpValArr.get(0);
-						if (tmpVal1.getType().equals("List")) {
-							tmpList1 = (MUAList) tmpVal1;
-							p.stackPush(tmpList1);
-						} else if (tmpVal1.getType().equals("Word")) {
-							tmpWord1 = (MUAWord) tmpVal1;
-							p.stackPush(tmpWord1);
-						}
-						break;
-					case "Word":
+						p.stackPush(tmpList1);
+					} else if (tmpVal1.getType().equals("Word")) {
 						tmpWord1 = (MUAWord) tmpVal1;
-						tmpWord1 = new MUAWord(tmpWord1.getContent().substring(0, 1), space, localSpace);
 						p.stackPush(tmpWord1);
-						break;
-					case "Number":
-						tmpNum1 = (MUANumber) tmpVal1;
-						tmpWord1 = new MUAWord(tmpNum1.getOriginalStr().substring(0, 1), space, localSpace);
-						p.stackPush(tmpWord1);
-						break;
-					case "Bool":
-						tmpBool1 = (MUABool) tmpVal1;
-						tmpWord1 = new MUAWord(tmpBool1.toString().substring(0, 1), space, localSpace);
-						p.stackPush(tmpWord1);
-						break;
-					default:
-						System.out.println("first-unknown-ValType");
-						break;
+					}
+				}
+				else
+				{
+					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0,1), space, localSpace);
+					p.stackPush(tmpWord1);
 				}
 
 				break;
