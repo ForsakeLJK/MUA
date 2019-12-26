@@ -295,27 +295,28 @@ public class Operation {
 			case "butfirst": // note that butfirst can return an empty list 
 				tmpVal1 = p.stackPop();
 
-				switch (tmpVal1.getType()) {
-					case "List":
-						tmpList1 = (MUAList) tmpVal1;
-						tmpValArr = tmpList1.lexListContent(space, localSpace);
-						if(tmpValArr.size() == 1)
-						{
-							tmpList1 = new MUAList("[]");
-							p.stackPush(tmpList1);
-							break;
-						}else{
-							tmpStr = "[";
-							for (MUAValue muaValue : tmpValArr.subList(1, tmpValArr.size())) {
-								
-							}
+				if(tmpVal1.getType().equals("List"))
+				{
+					tmpList1 = (MUAList) tmpVal1;
+					tmpValArr = tmpList1.lexListContent(space, localSpace);
+					if(tmpValArr.size() == 1)
+					{
+						tmpList1 = new MUAList("[]");
+						p.stackPush(tmpList1);
+					}else{
+						tmpStr = "[";
+						for (MUAValue muaValue : tmpValArr.subList(1, tmpValArr.size())) {
+							tmpStr += fetchStrContent(muaValue, true) + " ";
 						}
-
-						break;
-				
-					default:
-						System.out.println("butfirst-unknown-ValType");
-						break;
+						tmpStr = tmpStr.trim();
+						tmpStr += "]";
+						tmpList1 = new MUAList(tmpStr);
+						p.stackPush(tmpList1);	
+					}
+				}
+				else{
+					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(1), space, localSpace);
+					p.stackPush(tmpWord1);
 				}
 
 				break;
