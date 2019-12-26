@@ -5,8 +5,6 @@ import java.util.Stack;
 
 import src.mua.dataSpace.*;
 
-//import java.util.ArrayList;
-
 public class MUAList extends MUAValue{
 	private String list = "";
 
@@ -15,8 +13,6 @@ public class MUAList extends MUAValue{
 		return list;
 	}
 	
-
-
 	public MUAList (String content)
 	{
 		super("List");
@@ -166,31 +162,6 @@ public class MUAList extends MUAValue{
 	// return string w/o brackets
 	public String toString() {
 		return list.substring(1, list.length()-1);
-	}
-
-	public static void main(String[] args) {
-		MUAList list = new MUAList("[]");
-
-		MUAWord tmpWord;
-		MUAList tmpList;
-		String tmpSub;
-		DataSpace glo = new DataSpace();
-		DataSpace loc = new DataSpace();
-		ArrayList<MUAValue> res = list.lexListContent(glo, loc);
-
-		for (MUAValue val : res) {
-			if (val.getType() == "Word") {
-				tmpWord = (MUAWord) val;
-				tmpSub = tmpWord.toString();
-			} else {
-				tmpList = (MUAList) val;
-				tmpSub = tmpList.getList();
-			}
-
-			System.out.print(tmpSub + "$");
-		}
-		
-		System.out.print(String.valueOf(res.isEmpty()));
 	}
 	
 }

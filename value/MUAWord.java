@@ -4,7 +4,6 @@ import src.mua.dataSpace.DataSpace;
 
 public class MUAWord extends MUAValue{
 	private String content = "";
-	//private String bindLocation = "";
 	private boolean hasBondLoc = false;
 	private boolean hasBondGlo = false;
 	private MUAValue bindValLoc = null;
@@ -24,13 +23,8 @@ public class MUAWord extends MUAValue{
 	
 	public void eraseBond()
 	{
-		//if(bindLocation.equals("global"))
-		//	space.deleteBond(this);
-		//else if(bindLocation.equals("local"))
-		localSpace.deleteBond(this);
 
-		//bindValLoc = null;
-		//hasBondLoc = false;
+		localSpace.deleteBond(this);
 		
 		findBond();  // reset bondVal etc. to avoid local == global 
 	}
@@ -55,7 +49,6 @@ public class MUAWord extends MUAValue{
 		if(localSpace.inNameSpace(this)) {
 			hasBondLoc = true;
 			bindValLoc = localSpace.fetchVal(this);
-			//bindLocation = "local";
 		}
 		else
 		{
@@ -66,7 +59,6 @@ public class MUAWord extends MUAValue{
 		{
 			hasBondGlo = true;
 			bindValGlo = space.fetchVal(this);
-			//bindLocation = "global";
 		}
 		else
 		{
@@ -90,9 +82,6 @@ public class MUAWord extends MUAValue{
 		}
 		else
 		{
-			//if(bindLocation.equals("global"))
-			//	space.replaceBond(this, val);
-			//else if(bindLocation.equals("local"))
 			localSpace.replaceBond(this, val);
 		}
 
@@ -106,13 +95,9 @@ public class MUAWord extends MUAValue{
 		boolean isConvertibleToNum = false;
 		
 		for(i = 0; i < content.length(); i++)
-		//{
 			if(!(Character.isDigit(content.charAt(i))))
-			//{
-				//isConvertible = false;
 				break;
-			//}
-		//}
+
 		if(i == content.length())
 			isConvertibleToNum = true;
 		return isConvertibleToNum;
@@ -138,8 +123,4 @@ public class MUAWord extends MUAValue{
 		return content.trim().isEmpty();
 	}
 
-	public static void main(String[] args)
-	{
-		
-	}
 }

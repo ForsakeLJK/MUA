@@ -1,9 +1,6 @@
 package src.mua.parse;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -17,11 +14,6 @@ import src.mua.value.MUANumber;
 import src.mua.value.MUAValue;
 import src.mua.value.MUAWord;
 
-// make, thing/:, erase, isname, print, read
-// add, sub, mul, div, mod
-// eq, gt, lt
-// and, or
-// not
 public class Operation {
 
 	private static String fetchStrVal(MUAValue Val) {
@@ -177,7 +169,6 @@ public class Operation {
 			System.out.println(fetchStrVal(tmpVal1));
 			break;
 		case "read":
-			// Scanner in = new Scanner(System.in);
 			tmpStr = inStream.nextLine();
 			tmpWord1 = new MUAWord(tmpStr, space, localSpace);
 			p.stackPush(tmpWord1);
@@ -190,19 +181,11 @@ public class Operation {
 			p.stackPush(tmpList1);
 			break;
 		case "repeat":
-			// test code:
-			// make "a 1
-			// repeat 4 [make "a add :a 1 print :a]
-			// result: 2 3 4 5
-			// tmpSpace = new DataSpace();
 			tmpParser = new Parser(space, localSpace); // space in repeat is the same as its parent parser
 			tmpNum1 = (MUANumber) p.stackPop(); // repeat times
 			tmpList1 = (MUAList) p.stackPop(); // repeat code
 			tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length() - 1); // code to repeat
 
-			// System.out.print("code to run is:\n");
-			// System.out.print(tmpStr+"\n");
-			// repeat codes tmpNum1 times
 			for (int i = 0; i < (int) tmpNum1.getVal(); i++) {
 				tmpParser.parse(tmpStr, inStream);
 			}

@@ -28,11 +28,4 @@ public class MUANumber extends MUAValue{
 	}
 
 
-	// no int and double
-	public static void main(String[] args)
-	{
-		MUANumber num = new MUANumber("1234");
-		System.out.println(num.toString());
-		System.out.println(num.getOriginalStr());
-	}
 }

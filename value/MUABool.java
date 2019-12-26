@@ -18,12 +18,4 @@ public class MUABool extends MUAValue{
 	public String toString() {
 		return val.toString();
 	}
-
-	// no int and double
-	public static void main(String[] args)
-	{
-		MUABool bool = new MUABool("false");
-		System.out.println(bool.toString());
-
-	}
 }

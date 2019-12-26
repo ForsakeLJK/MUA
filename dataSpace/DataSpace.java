@@ -47,7 +47,6 @@ public class DataSpace {
 	}
 
 	public void saveSpace(File file) {
-		//String tmpStr = "";
 		try {
 			FileWriter saver = new FileWriter(file, true);
 		
@@ -89,11 +88,6 @@ public class DataSpace {
 		}
 
 		return res;
-	}
-	
-	public static void main(String[] args) {
-		
-		
 	}
 
 }

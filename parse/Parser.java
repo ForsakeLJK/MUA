@@ -68,54 +68,37 @@ public class Parser {
 		tokenList = new ArrayList<String>();
 		stackVal = new Stack<MUAValue>(); 
 		lineList = new ArrayList<ArrayList<String>>();
-		//ArrayList<ArrayList<String>> listOLists = new ArrayList<ArrayList<String>>();
+
 		
 		str = in;
 		str = preprocess(str); // eliminate all /t
-		//System.out.print("After preprocessing: " + str + "\n");
-		lexer(inStream);      //
+		lexer(inStream);      
 		Collections.reverse(tokenList);  // reverse the whole list
-		// System.out.print("after lexing and reversing:\n");
-		// System.out.print(tokenList.toString());
-		// System.out.print("\n");
 		
 		redo = split();
 		
-		//if(redo)
-		//{
-			while(redo && inStream.hasNextLine())  // if 
-			{
-				//System.out.print("redoing...\n");
-				// re-init
-				tokenList.clear();
-				lineList.clear();
-				stackVal.clear();
-				// update str
-				str += " ";
-				str += inStream.nextLine();
-				// redo
-				preprocess(str);
-				lexer(inStream);
-				Collections.reverse(tokenList);  // reverse the whole list
-				//System.out.print("after lexing and reversing:\n");
-				//System.out.print(tokenList.toString());
-				//System.out.print("\n");
-				
-				redo = split();
-			}		
-		//}
+		while(redo && inStream.hasNextLine())  
+		{
 
-		
-		//if(!inStream.hasNextLine())
-		//	System.out.print("Bad thing happened!");
+			// re-init
+			tokenList.clear();
+			lineList.clear();
+			stackVal.clear();
+			// update str
+			str += " ";
+			str += inStream.nextLine();
+			// redo
+			preprocess(str);
+			lexer(inStream);
+			Collections.reverse(tokenList);  // reverse the whole list
+			
+			redo = split();
+		}		
 		
 		// reverse line list for executing
 		Collections.reverse(lineList);
-		//System.out.print("Split successfully!\n");
-		//System.out.print(lineList.toString() + "\n");
-		//System.out.print("\n");
-		retVal = execute(inStream);
 		// check every token's type and execute
+		retVal = execute(inStream);
 		
 		return retVal;
 	}
@@ -173,8 +156,7 @@ public class Parser {
 						// new parser with space and tmpSpace
 						// fetch code
 						// parse
-						//System.out.println("Code to run: " + f_code);
-						//DataSpace tmpSpace = new DataSpace();
+
 						if(f_code.trim().isEmpty())
 							break;
 
@@ -203,13 +185,6 @@ public class Parser {
 						 	space.addBond(expVar, expVal);
 						break;
 					case "If":
-						/* test code:
-							make "n 5
-							print :n
-						    if lt :n 2
-						      [print sub :n 2]
-						      [print add :n 1]
-						 */
 						tmpParser = new Parser(space, localSpace);  // space in if is the same as its parent parser
 						tmpBool1 = (MUABool)stackPop(); // boolean
 						tmpList1 = (MUAList)stackPop();  // condition 1 (when true)
@@ -263,12 +238,9 @@ public class Parser {
 		else   // bind into local
 		{
 			String[] splitted = f_argList.trim().split("\\s+");
-			//cnt = splitted.length;
 			for(String str : splitted) {
-				//arg_name = new MUAWord();
 				arg_name = new MUAWord(str, space, newSpace);
 				arg_name.setBond(stackVal.pop(), newSpace, space);
-				//newSpace.addBond(, stackVal.pop());
 			}
 		}
 		
@@ -324,17 +296,10 @@ public class Parser {
 	{
 		return operationList.contains(token);
 	}
-//	private boolean isBool(String token)
-//	{
-//		return (token == "true") || (token == "false"); 
-//	}
 	
-	//private boolean isList()
 	// delete "//" , find lists, substitute : to thing "
-	// 		about lists: rewrite a split
 	private String preprocess(String s)
 	{
-		//str += "wow";
 		s = s.replaceAll("\t", " ");
 		
 		return s;
@@ -416,9 +381,7 @@ public class Parser {
 								String tmpStr;
 								tmpStr = " " + inStream.nextLine() + " ";
 								tmpStr = preprocess(tmpStr);
-								//tmpStr = "$" + tmpStr ? 
 								str += tmpStr;
-								//str.replace()
 								continue;
 							}
 							
@@ -448,9 +411,7 @@ public class Parser {
 								String tmpStr;
 								tmpStr = " " + inStream.nextLine() + " ";
 								tmpStr = preprocess(tmpStr);
-								// tmpStr = "$" + tmpStr ?
 								str += tmpStr;
-								// str.replace()
 								continue;
 							}
 
@@ -475,7 +436,6 @@ public class Parser {
 				if(tmpSub.charAt(0)==':')
 				{
 					i = 0;
-					//for(i = 0; tmpSub.charAt(i)==':'; i++)
 					while(tmpSub.charAt(i) == ':') {
 						tokenList.add("thing");
 						i++;
@@ -513,7 +473,6 @@ public class Parser {
 					return 1;
 				break;
 			case "Function":
-				// need to add code later
 				MUAWord f_name = new MUAWord(token, space, localSpace);
 				MUAList f_list = (MUAList)f_name.fetchBindVal();
 				
@@ -521,7 +480,6 @@ public class Parser {
 					return 1;
 				else
 					return 0;				
-				//break;
 			case "Stop":
 				return 0;
 			case "Output":
@@ -547,16 +505,12 @@ public class Parser {
 		else
 		{
 			String[] splitted = argList.trim().split("\\s+");
-			//cnt = splitted.length;
 			for(String str : splitted) {
-				//System.out.println(a);
 				cnt++;
 			}
 			
 			return cnt;
-			//System.out.println(splitted.getList());
-		}
-		//return -1;           
+		}        
 	}
 	
 	private int operandCnt(String token, String type)
@@ -581,7 +535,6 @@ public class Parser {
 					return 0;
 				break;
 			case "Function":
-				// need to add code later
 				MUAWord f_name = new MUAWord(token, space, localSpace);
 				MUAList f_list = (MUAList)f_name.fetchBindVal();
 				String f_code = f_list.getList().substring(1, f_list.getList().length()-1);  // eliminate []
@@ -589,8 +542,6 @@ public class Parser {
 				String f_argList = f_code.substring(f_code.indexOf('[') + 1, f_code.indexOf(']', f_code.indexOf('[')));
 				
 				return argCnt(f_argList);
-				
-				//break;
 			case "Output":
 				return 1;
 			case "Stop":
@@ -705,9 +656,7 @@ public class Parser {
 			
 			tmpList.add(expr.substring(head, head+1));
 
-			tmpList.add(tmpStr); // trim
-			
-			//tmpList.add(expr.substring(tail, tail+1));	
+			tmpList.add(tmpStr); // trim	
 
 			head = tail;
 		}
@@ -761,9 +710,7 @@ public class Parser {
 
 		/* reverse the postfix result */
 		Collections.reverse(resList);
-		// for (String string : resList) {
-		// 	System.out.print(string + "$");
-		// }
+
 		/* translate each token and link them into a string */
 		for (String string : resList) {
 			if(isExprOp(string))
@@ -887,20 +834,4 @@ public class Parser {
 		return array.get(0);
 	}
 
-
-	public static void main(String[] args) {
-		//Scanner in = new Scanner(System.in);
-
-		// DataSpace space = new DataSpace();
-		// Parser p = new Parser(space, space);
-		
-		//String testLine = in.nextLine();
-		//System.out.println(translate(testLine));
-		//translate(testLine);
-		//in.close();
-		//p.parse(testLine, in);
-		//p.split();
-
-
-	}
 }
