@@ -42,7 +42,7 @@ public class Operation {
 		return res;
 	}
 
-	private static String fetchStrContent(MUAValue Val) {
+	private static String fetchStrContent(MUAValue Val, boolean list_with_brackets) {
 		String res = "";
 		switch (Val.getType()) {
 		case "Word":
@@ -51,7 +51,7 @@ public class Operation {
 			break;
 		case "Number":
 			MUANumber tmpNum = (MUANumber) Val;
-			res = tmpNum.toString();
+			res = tmpNum.getOriginalStr();
 			break;
 		case "Bool":
 			MUABool tmpBool = (MUABool) Val;
@@ -59,7 +59,10 @@ public class Operation {
 			break;
 		case "List":
 			MUAList tmpList = (MUAList) Val;
-			res = tmpList.getList();
+			if(list_with_brackets)
+				res = tmpList.getList();
+			else
+				res = tmpList.toString();
 			break;
 		}
 
@@ -154,8 +157,6 @@ public class Operation {
 		MUANumber tmpNum1 = null;
 		Parser tmpParser = null;
 		ArrayList<MUAValue> tmpValArr = null;
-		char[] tmpCharArr = null;
-		
 		String tmpStr;
 		switch (opStr) {
 			case "make": 
@@ -214,16 +215,16 @@ public class Operation {
 				break;
 			case "sentence":
 				tmpStr = "[";
-				tmpStr += fetchStrVal(p.stackPop());
-				tmpStr += " " + fetchStrVal(p.stackPop());  // if it's a list, the string'll be w/o []
+				tmpStr += fetchStrContent(p.stackPop(), false);
+				tmpStr += " " + fetchStrContent(p.stackPop(), false);  // if it's a list, the string'll be w/o []
 				tmpStr += "]";
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
 				break;
 			case "list":
 				tmpStr = "[";
-				tmpStr += fetchStrContent(p.stackPop());  // if it's a list, the string'll be w/ []
-				tmpStr += " " + fetchStrContent(p.stackPop());
+				tmpStr += fetchStrContent(p.stackPop(), true);  // if it's a list, the string'll be w/ []
+				tmpStr += " " + fetchStrContent(p.stackPop(), true);
 				tmpStr += "]";
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
@@ -233,7 +234,7 @@ public class Operation {
 				tmpStr += fetchStrVal(p.stackPop()).trim(); // it must be a list, and return a string w/o []
 				if(!tmpStr.equals("["))
 					tmpStr += " ";
-				tmpStr += fetchStrContent(p.stackPop()); // if it's a list, the string'll be w/ []
+				tmpStr += fetchStrContent(p.stackPop(), true); // if it's a list, the string'll be w/ []
 				tmpStr += "]";
 				tmpList1 = new MUAList(tmpStr);
 				p.stackPush(tmpList1);
@@ -305,11 +306,39 @@ public class Operation {
 				}
 
 				break;
-			case "butfirst":
+			case "butfirst": // note that butfirst can return an empty list 
+				tmpVal1 = p.stackPop();
+
+				switch (tmpVal1.getType()) {
+					case "List":
+						tmpList1 = (MUAList) tmpVal1;
+						tmpValArr = tmpList1.lexListContent(space, localSpace);
+						if(tmpValArr.size() == 1)
+						{
+							tmpList1 = new MUAList("[]");
+							p.stackPush(tmpList1);
+							break;
+						}else{
+							tmpStr = "[";
+							for (MUAValue muaValue : tmpValArr.subList(1, tmpValArr.size())) {
+								
+							}
+						}
+
+						break;
+				
+					default:
+						System.out.println("butfirst-unknown-ValType");
+						break;
+				}
 
 				break;
 			case "butlast":
 
+				break;
+
+			default:
+				System.out.println("opOther-unknown-opStr");
 				break;
 		}
 	}
