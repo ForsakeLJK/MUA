@@ -291,11 +291,16 @@ public class Operation {
 						break;
 					case "Number":
 						tmpNum1 = (MUANumber) tmpVal1;
-						tmpWord1 = new MUAWord(tmpNum1.toString(), space, localSpace);
+						tmpWord1 = new MUAWord(tmpNum1.getOriginalStr().substring(0, 1), space, localSpace);
+						p.stackPush(tmpWord1);
 						break;
 					case "Bool":
+						tmpBool1 = (MUABool) tmpVal1;
+						tmpWord1 = new MUAWord(tmpBool1.toString().substring(0, 1), space, localSpace);
+						p.stackPush(tmpWord1);
 						break;
 					default:
+						System.out.println("first-unknown-ValType");
 						break;
 				}
 

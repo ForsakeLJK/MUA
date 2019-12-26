@@ -32,7 +32,7 @@ public class MUANumber extends MUAValue{
 	public static void main(String[] args)
 	{
 		MUANumber num = new MUANumber("1234");
-		System.out.println(num.getVal());
-
+		System.out.println(num.toString());
+		System.out.println(num.getOriginalStr());
 	}
 }
