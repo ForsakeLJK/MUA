@@ -1,5 +1,12 @@
 package src.mua.parse;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -16,11 +23,10 @@ import src.mua.value.MUAWord;
 // and, or
 // not
 public class Operation {
-	
-	private static String fetchStrVal(MUAValue Val)
-	{
+
+	private static String fetchStrVal(MUAValue Val) {
 		String res = "";
-		switch(Val.getType()) {
+		switch (Val.getType()) {
 		case "Word":
 			MUAWord tmpWord = (MUAWord) Val;
 			res = tmpWord.toString();
@@ -38,7 +44,7 @@ public class Operation {
 			res = tmpList.toString();
 			break;
 		}
-		
+
 		return res;
 	}
 
@@ -59,7 +65,7 @@ public class Operation {
 			break;
 		case "List":
 			MUAList tmpList = (MUAList) Val;
-			if(list_with_brackets)
+			if (list_with_brackets)
 				res = tmpList.getList();
 			else
 				res = tmpList.toString();
@@ -68,86 +74,75 @@ public class Operation {
 
 		return res;
 	}
-	
+
 	// space here denotes the global space, whereas localSpace the local space
-	public static void operate (Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream)
-	{
-		
-		if(opStr.equals("eq")||opStr.equals("gt")||opStr.equals("lt"))
+	public static void operate(Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream) {
+
+		if (opStr.equals("eq") || opStr.equals("gt") || opStr.equals("lt"))
 			opComp(p, opStr);
-		else if(opStr.equals("not")||opStr.equals("and")||opStr.equals("or"))
+		else if (opStr.equals("not") || opStr.equals("and") || opStr.equals("or"))
 			opLogic(p, opStr);
-		else if(opStr.equals("add")||opStr.equals("sub")||opStr.equals("mul")||opStr.equals("div")||opStr.equals("mod"))
+		else if (opStr.equals("add") || opStr.equals("sub") || opStr.equals("mul") || opStr.equals("div")
+				|| opStr.equals("mod"))
 			opArithmetic(p, opStr);
-		else 
+		else
 			opOther(p, opStr, space, localSpace, inStream);
 	}
-	
-	private static void opArithmetic(Parser p, String opStr)
-	{
+
+	private static void opArithmetic(Parser p, String opStr) {
 		MUANumber tmpNum1 = null;
 		MUANumber tmpNum2 = null;
 		MUANumber resNum = null;
-		
+
 		MUAWord tmpWord1 = null;
 		MUAWord tmpWord2 = null;
-		
+
 		MUAValue tmpVal1;
 		MUAValue tmpVal2;
-		
+
 		tmpVal1 = p.stackPop();
 		tmpVal2 = p.stackPop();
-		
-		if(tmpVal1.getType().equals("Word"))
-		{
+
+		if (tmpVal1.getType().equals("Word")) {
 			tmpWord1 = (MUAWord) tmpVal1;
-			if(tmpWord1.checkConvertToNum())
-			{
+			if (tmpWord1.checkConvertToNum()) {
 				tmpNum1 = new MUANumber(tmpWord1.getContent());
 			}
-		}
-		else
-		{
+		} else {
 			tmpNum1 = (MUANumber) tmpVal1;
 		}
-		
-		if(tmpVal2.getType().equals("Word"))
-		{
+
+		if (tmpVal2.getType().equals("Word")) {
 			tmpWord2 = (MUAWord) tmpVal2;
-			if(tmpWord2.checkConvertToNum())
-			{
+			if (tmpWord2.checkConvertToNum()) {
 				tmpNum2 = new MUANumber(tmpWord2.getContent());
 			}
-		}
-		else
-		{
+		} else {
 			tmpNum2 = (MUANumber) tmpVal2;
 		}
-		
-		switch(opStr)
-		{
-			case "add":
-				resNum = new MUANumber(String.valueOf(tmpNum1.getVal() + tmpNum2.getVal()));
-				break;
-			case "sub":
-				resNum = new MUANumber(String.valueOf(tmpNum1.getVal() - tmpNum2.getVal()));
-				break;
-			case "mul":
-				resNum = new MUANumber(String.valueOf(tmpNum1.getVal() * tmpNum2.getVal()));
-				break;
-			case "div":
-				resNum = new MUANumber(String.valueOf(tmpNum1.getVal() / tmpNum2.getVal()));
-				break;
-			case "mod":
-				resNum = new MUANumber(String.valueOf(tmpNum1.getVal() % tmpNum2.getVal()));
-				break;
-		}		
+
+		switch (opStr) {
+		case "add":
+			resNum = new MUANumber(String.valueOf(tmpNum1.getVal() + tmpNum2.getVal()));
+			break;
+		case "sub":
+			resNum = new MUANumber(String.valueOf(tmpNum1.getVal() - tmpNum2.getVal()));
+			break;
+		case "mul":
+			resNum = new MUANumber(String.valueOf(tmpNum1.getVal() * tmpNum2.getVal()));
+			break;
+		case "div":
+			resNum = new MUANumber(String.valueOf(tmpNum1.getVal() / tmpNum2.getVal()));
+			break;
+		case "mod":
+			resNum = new MUANumber(String.valueOf(tmpNum1.getVal() % tmpNum2.getVal()));
+			break;
+		}
 
 		p.stackPush(resNum);
 	}
-	
-	private static void opOther(Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream)
-	{
+
+	private static void opOther(Parser p, String opStr, DataSpace space, DataSpace localSpace, Scanner inStream) {
 		MUABool tmpBool1 = null;
 		MUAWord tmpWord1 = null;
 		MUAValue tmpVal1 = null;
@@ -159,204 +154,215 @@ public class Operation {
 		ArrayList<MUAValue> tmpValArr = null;
 		String tmpStr;
 		switch (opStr) {
-			case "make": 
-				name = (MUAWord) p.stackPop();
-				bindVal = p.stackPop();
-				name.setBond(bindVal, localSpace, space);
-				break; 
-			case "thing":
-				name = (MUAWord) p.stackPop();
-				p.stackPush(name.fetchBindVal());
-				break;
-			case "erase": 
-				name = (MUAWord) p.stackPop();
-				name.eraseBond();
-				break;
-			case "isname": 
-				tmpWord1 = (MUAWord) p.stackPop();
-				tmpBool1 = new MUABool(String.valueOf(tmpWord1.checkBond()));
-				p.stackPush(tmpBool1);
-				break;
-			case "print":
-				tmpVal1 = p.stackPop();
-				System.out.println(fetchStrVal(tmpVal1));
-				break;
-			case "read": 
-				//Scanner in = new Scanner(System.in);
-				tmpStr = inStream.nextLine();
-				tmpWord1 = new MUAWord(tmpStr, space, localSpace);
-				p.stackPush(tmpWord1);
-				break;
-			case "readlist":
-				tmpStr = "[ ";
-				tmpStr += inStream.nextLine();
-				tmpStr += " ]";  // leave a space before ]
-				tmpList1 = new MUAList(tmpStr);
-				p.stackPush(tmpList1);
-				break;
-			case "repeat":
-				// test code:
-				// make "a 1
-				// repeat 4 [make "a add :a 1 print :a]
-				// result: 2 3 4 5
-				//tmpSpace = new DataSpace();
-				tmpParser = new Parser(space, localSpace);    // space in repeat is the same as its parent parser
-				tmpNum1 = (MUANumber)p.stackPop();  // repeat times
-				tmpList1 = (MUAList)p.stackPop(); // repeat code
-				tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length()-1);  // code to repeat
-				
-				//System.out.print("code to run is:\n");
-				//System.out.print(tmpStr+"\n");
-				// repeat codes tmpNum1 times
-				for(int i = 0; i<(int)tmpNum1.getVal(); i++)
-				{
-					tmpParser.parse(tmpStr, inStream);
-				}
-				break;
-			case "sentence":
-				tmpStr = "[";
-				tmpStr += fetchStrContent(p.stackPop(), false);
-				tmpStr += " " + fetchStrContent(p.stackPop(), false);  // if it's a list, the string'll be w/o []
-				tmpStr += "]";
-				tmpList1 = new MUAList(tmpStr);
-				p.stackPush(tmpList1);
-				break;
-			case "list":
-				tmpStr = "[";
-				tmpStr += fetchStrContent(p.stackPop(), true);  // if it's a list, the string'll be w/ []
-				tmpStr += " " + fetchStrContent(p.stackPop(), true);
-				tmpStr += "]";
-				tmpList1 = new MUAList(tmpStr);
-				p.stackPush(tmpList1);
-				break;
-			case "join":
-				tmpStr = "[";
-				tmpStr += fetchStrVal(p.stackPop()).trim(); // it must be a list, and return a string w/o []
-				if(!tmpStr.equals("["))
-					tmpStr += " ";
-				tmpStr += fetchStrContent(p.stackPop(), true); // if it's a list, the string'll be w/ []
-				tmpStr += "]";
-				tmpList1 = new MUAList(tmpStr);
-				p.stackPush(tmpList1);
-				break;
-			case "word":
-				tmpStr = fetchStrVal(p.stackPop()).trim();
-				tmpStr += fetchStrVal(p.stackPop()).trim();
-				tmpWord1 = new MUAWord(tmpStr.trim(), space, localSpace);
-				p.stackPush(tmpWord1);
-				break;
-			case "isempty":
-				tmpVal1 = p.stackPop();
-				switch (tmpVal1.getType()) {
-					case "Word":
-						tmpWord1 = (MUAWord) tmpVal1;
-						tmpBool1 = new MUABool(String.valueOf(tmpWord1.isEmpty()));
-						break;
-					case "List":
-						tmpList1 = (MUAList) tmpVal1;
-						tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
-						break;
-					default:
-						break;
-				}
-				p.stackPush(tmpBool1);
-				break;
-			case "islist":
-				tmpVal1 = p.stackPop();
-				if(tmpVal1.getType().equals("List"))
-					tmpBool1 = new MUABool("true");
-				else
-					tmpBool1 = new MUABool("false");
-				p.stackPush(tmpBool1);
-				break;
-			case "first":
-				tmpVal1 = p.stackPop();
+		case "make":
+			name = (MUAWord) p.stackPop();
+			bindVal = p.stackPop();
+			name.setBond(bindVal, localSpace, space);
+			break;
+		case "thing":
+			name = (MUAWord) p.stackPop();
+			p.stackPush(name.fetchBindVal());
+			break;
+		case "erase":
+			name = (MUAWord) p.stackPop();
+			name.eraseBond();
+			break;
+		case "isname":
+			tmpWord1 = (MUAWord) p.stackPop();
+			tmpBool1 = new MUABool(String.valueOf(tmpWord1.checkBond()));
+			p.stackPush(tmpBool1);
+			break;
+		case "print":
+			tmpVal1 = p.stackPop();
+			System.out.println(fetchStrVal(tmpVal1));
+			break;
+		case "read":
+			// Scanner in = new Scanner(System.in);
+			tmpStr = inStream.nextLine();
+			tmpWord1 = new MUAWord(tmpStr, space, localSpace);
+			p.stackPush(tmpWord1);
+			break;
+		case "readlist":
+			tmpStr = "[ ";
+			tmpStr += inStream.nextLine();
+			tmpStr += " ]"; // leave a space before ]
+			tmpList1 = new MUAList(tmpStr);
+			p.stackPush(tmpList1);
+			break;
+		case "repeat":
+			// test code:
+			// make "a 1
+			// repeat 4 [make "a add :a 1 print :a]
+			// result: 2 3 4 5
+			// tmpSpace = new DataSpace();
+			tmpParser = new Parser(space, localSpace); // space in repeat is the same as its parent parser
+			tmpNum1 = (MUANumber) p.stackPop(); // repeat times
+			tmpList1 = (MUAList) p.stackPop(); // repeat code
+			tmpStr = tmpList1.getList().substring(1, tmpList1.getList().length() - 1); // code to repeat
 
-				if(tmpVal1.getType().equals("List"))
-				{
-					tmpList1 = (MUAList) tmpVal1;
-					tmpValArr = tmpList1.lexListContent(space, localSpace);
-					tmpVal1 = tmpValArr.get(0);
-					if (tmpVal1.getType().equals("List")) {
-						tmpList1 = (MUAList) tmpVal1;
-						p.stackPush(tmpList1);
-					} else if (tmpVal1.getType().equals("Word")) {
-						tmpWord1 = (MUAWord) tmpVal1;
-						p.stackPush(tmpWord1);
-					}
-				}
-				else
-				{
-					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0,1), space, localSpace);
-					p.stackPush(tmpWord1);
-				}
-
+			// System.out.print("code to run is:\n");
+			// System.out.print(tmpStr+"\n");
+			// repeat codes tmpNum1 times
+			for (int i = 0; i < (int) tmpNum1.getVal(); i++) {
+				tmpParser.parse(tmpStr, inStream);
+			}
+			break;
+		case "sentence":
+			tmpStr = "[";
+			tmpStr += fetchStrContent(p.stackPop(), false);
+			tmpStr += " " + fetchStrContent(p.stackPop(), false); // if it's a list, the string'll be w/o []
+			tmpStr += "]";
+			tmpList1 = new MUAList(tmpStr);
+			p.stackPush(tmpList1);
+			break;
+		case "list":
+			tmpStr = "[";
+			tmpStr += fetchStrContent(p.stackPop(), true); // if it's a list, the string'll be w/ []
+			tmpStr += " " + fetchStrContent(p.stackPop(), true);
+			tmpStr += "]";
+			tmpList1 = new MUAList(tmpStr);
+			p.stackPush(tmpList1);
+			break;
+		case "join":
+			tmpStr = "[";
+			tmpStr += fetchStrVal(p.stackPop()).trim(); // it must be a list, and return a string w/o []
+			if (!tmpStr.equals("["))
+				tmpStr += " ";
+			tmpStr += fetchStrContent(p.stackPop(), true); // if it's a list, the string'll be w/ []
+			tmpStr += "]";
+			tmpList1 = new MUAList(tmpStr);
+			p.stackPush(tmpList1);
+			break;
+		case "word":
+			tmpStr = fetchStrVal(p.stackPop()).trim();
+			tmpStr += fetchStrVal(p.stackPop()).trim();
+			tmpWord1 = new MUAWord(tmpStr.trim(), space, localSpace);
+			p.stackPush(tmpWord1);
+			break;
+		case "isempty":
+			tmpVal1 = p.stackPop();
+			switch (tmpVal1.getType()) {
+			case "Word":
+				tmpWord1 = (MUAWord) tmpVal1;
+				tmpBool1 = new MUABool(String.valueOf(tmpWord1.isEmpty()));
 				break;
-			case "butfirst": // note that butfirst can return an empty list 
-				tmpVal1 = p.stackPop();
-
-				if(tmpVal1.getType().equals("List"))
-				{
-					tmpList1 = (MUAList) tmpVal1;
-					tmpValArr = tmpList1.lexListContent(space, localSpace);
-					if(tmpValArr.size() == 1)
-					{
-						tmpList1 = new MUAList("[]");
-						p.stackPush(tmpList1);
-					}else{
-						tmpStr = "[";
-						for (MUAValue muaValue : tmpValArr.subList(1, tmpValArr.size())) {
-							tmpStr += fetchStrContent(muaValue, true) + " ";
-						}
-						tmpStr = tmpStr.trim();
-						tmpStr += "]";
-						tmpList1 = new MUAList(tmpStr);
-						p.stackPush(tmpList1);	
-					}
-				}
-				else{
-					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(1), space, localSpace);
-					p.stackPush(tmpWord1);
-				}
-
+			case "List":
+				tmpList1 = (MUAList) tmpVal1;
+				tmpBool1 = new MUABool(String.valueOf(tmpList1.isEmpty()));
 				break;
-			case "butlast":
-				tmpVal1 = p.stackPop();
+			default:
+				break;
+			}
+			p.stackPush(tmpBool1);
+			break;
+		case "islist":
+			tmpVal1 = p.stackPop();
+			if (tmpVal1.getType().equals("List"))
+				tmpBool1 = new MUABool("true");
+			else
+				tmpBool1 = new MUABool("false");
+			p.stackPush(tmpBool1);
+			break;
+		case "first":
+			tmpVal1 = p.stackPop();
 
+			if (tmpVal1.getType().equals("List")) {
+				tmpList1 = (MUAList) tmpVal1;
+				tmpValArr = tmpList1.lexListContent(space, localSpace);
+				tmpVal1 = tmpValArr.get(0);
 				if (tmpVal1.getType().equals("List")) {
 					tmpList1 = (MUAList) tmpVal1;
-					tmpValArr = tmpList1.lexListContent(space, localSpace);
-					if (tmpValArr.size() == 1) {
-						tmpList1 = new MUAList("[]");
-						p.stackPush(tmpList1);
-					} else {
-						tmpStr = "[";
-						for (MUAValue muaValue : tmpValArr.subList(0, tmpValArr.size()-1)) {
-							tmpStr += fetchStrContent(muaValue, true) + " ";
-						}
-						tmpStr = tmpStr.trim();
-						tmpStr += "]";
-						tmpList1 = new MUAList(tmpStr);
-						p.stackPush(tmpList1);
-					}
-				} else {
-					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0, fetchStrContent(tmpVal1, true).trim().length()-1), space, localSpace);
+					p.stackPush(tmpList1);
+				} else if (tmpVal1.getType().equals("Word")) {
+					tmpWord1 = (MUAWord) tmpVal1;
 					p.stackPush(tmpWord1);
 				}
-				break;
-			case "save":
+			} else {
+				tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0, 1), space, localSpace);
+				p.stackPush(tmpWord1);
+			}
 
-				break;
-			case "load":
-				
-				break;
-			case "erall":
-				
-				break;
+			break;
+		case "butfirst": // note that butfirst can return an empty list
+			tmpVal1 = p.stackPop();
 
-			default:
-				System.out.println("opOther-unknown-opStr");
-				break;
+			if (tmpVal1.getType().equals("List")) {
+				tmpList1 = (MUAList) tmpVal1;
+				tmpValArr = tmpList1.lexListContent(space, localSpace);
+				if (tmpValArr.size() == 1) {
+					tmpList1 = new MUAList("[]");
+					p.stackPush(tmpList1);
+				} else {
+					tmpStr = "[";
+					for (MUAValue muaValue : tmpValArr.subList(1, tmpValArr.size())) {
+						tmpStr += fetchStrContent(muaValue, true) + " ";
+					}
+					tmpStr = tmpStr.trim();
+					tmpStr += "]";
+					tmpList1 = new MUAList(tmpStr);
+					p.stackPush(tmpList1);
+				}
+			} else {
+				tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(1), space, localSpace);
+				p.stackPush(tmpWord1);
+			}
+
+			break;
+		case "butlast":
+			tmpVal1 = p.stackPop();
+
+			if (tmpVal1.getType().equals("List")) {
+				tmpList1 = (MUAList) tmpVal1;
+				tmpValArr = tmpList1.lexListContent(space, localSpace);
+				if (tmpValArr.size() == 1) {
+					tmpList1 = new MUAList("[]");
+					p.stackPush(tmpList1);
+				} else {
+					tmpStr = "[";
+					for (MUAValue muaValue : tmpValArr.subList(0, tmpValArr.size() - 1)) {
+						tmpStr += fetchStrContent(muaValue, true) + " ";
+					}
+					tmpStr = tmpStr.trim();
+					tmpStr += "]";
+					tmpList1 = new MUAList(tmpStr);
+					p.stackPush(tmpList1);
+				}
+			} else {
+				tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0,
+						fetchStrContent(tmpVal1, true).trim().length() - 1), space, localSpace);
+				p.stackPush(tmpWord1);
+			}
+			break;
+		case "save":
+			tmpWord1 = (MUAWord) p.stackPop(); // file name
+			File file = new File(tmpWord1.getContent().trim());
+
+			try {
+				file.createNewFile();
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+
+			localSpace.saveSpace(file);
+			break;
+		case "load":
+			tmpWord1 = (MUAWord) p.stackPop();
+
+			try {
+				String contents = new String(Files.readAllBytes(Paths.get(tmpWord1.getContent().trim())));
+				//System.out.println(contents);
+				p.parse(contents, inStream);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			break;
+		case "erall":
+			localSpace.clearAll();
+			break;
+
+		default:
+			System.out.println("opOther-unknown-opStr");
+			break;
 		}
 	}
 	

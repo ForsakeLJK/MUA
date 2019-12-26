@@ -1,7 +1,12 @@
 package src.mua.dataSpace;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.HashMap;
 
+import src.mua.value.MUABool;
+import src.mua.value.MUAList;
+import src.mua.value.MUANumber;
 import src.mua.value.MUAValue;
 import src.mua.value.MUAWord;
 
@@ -36,9 +41,58 @@ public class DataSpace {
 	{
 		return dataMap.get(key.getContent());
 	}
+
+	public void clearAll() {
+		dataMap.clear();
+	}
+
+	public void saveSpace(File file) {
+		//String tmpStr = "";
+		try {
+			FileWriter saver = new FileWriter(file, true);
+		
+			dataMap.entrySet().forEach(entry->{try {
+					saver.write("make \"" + entry.getKey() + " " + fetchStrContent(entry.getValue(), true) + " ");
+			} catch (Exception e) {
+					System.out.println(e.getMessage());
+			}
+			});
+
+			saver.close();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	private static String fetchStrContent(MUAValue Val, boolean list_with_brackets) {
+		String res = "";
+		switch (Val.getType()) {
+		case "Word":
+			MUAWord tmpWord = (MUAWord) Val;
+			res = "\"" + tmpWord.toString();
+			break;
+		case "Number":
+			MUANumber tmpNum = (MUANumber) Val;
+			res = tmpNum.getOriginalStr();
+			break;
+		case "Bool":
+			MUABool tmpBool = (MUABool) Val;
+			res = tmpBool.toString();
+			break;
+		case "List":
+			MUAList tmpList = (MUAList) Val;
+			if (list_with_brackets)
+				res = tmpList.getList();
+			else
+				res = tmpList.toString();
+			break;
+		}
+
+		return res;
+	}
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
