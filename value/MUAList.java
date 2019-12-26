@@ -38,6 +38,9 @@ public class MUAList extends MUAValue{
 		MUAList tmpList;
 		MUAWord tmpWord;
 
+		if(cont.trim().isEmpty())
+			return res;
+
 		int off = 0;
 		int next = 0;
 		Stack<String> tmpStack = new Stack<String>();
@@ -166,7 +169,7 @@ public class MUAList extends MUAValue{
 	}
 
 	public static void main(String[] args) {
-		MUAList list = new MUAList("[[a [b]] c]");
+		MUAList list = new MUAList("[]");
 
 		MUAWord tmpWord;
 		MUAList tmpList;
@@ -186,9 +189,8 @@ public class MUAList extends MUAValue{
 
 			System.out.print(tmpSub + "$");
 		}
-
-
-		list.lexListContent(glo, loc);
+		
+		System.out.print(String.valueOf(res.isEmpty()));
 	}
 	
 }

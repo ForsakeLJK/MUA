@@ -1,5 +1,6 @@
 package src.mua.parse;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import src.mua.dataSpace.DataSpace;
@@ -152,6 +153,8 @@ public class Operation {
 		MUAList tmpList1 = null;
 		MUANumber tmpNum1 = null;
 		Parser tmpParser = null;
+		ArrayList<MUAValue> tmpValArr = null;
+		char[] tmpCharArr = null;
 		
 		String tmpStr;
 		switch (opStr) {
@@ -264,6 +267,39 @@ public class Operation {
 				else
 					tmpBool1 = new MUABool("false");
 				p.stackPush(tmpBool1);
+				break;
+			case "first":
+				tmpVal1 = p.stackPop();
+
+				if(tmpVal1.getType().equals("List"))
+				{
+					tmpList1 = (MUAList)tmpVal1;
+					tmpValArr = tmpList1.lexListContent(space, localSpace);
+					tmpVal1 = tmpValArr.get(0);
+					if(tmpVal1.getType().equals("List"))
+					{
+						
+					}
+					else if(tmpVal1.getType().equals("Word"))
+					{
+
+					}
+				}
+				else if(tmpVal1.getType().equals("Word"))
+				{
+
+				}
+				else if(tmpVal1.getType().equals("Bool") || tmpVal1.getType().equals("Number"))
+				{
+
+				}
+
+				break;
+			case "butfirst":
+
+				break;
+			case "butlast":
+
 				break;
 		}
 	}
