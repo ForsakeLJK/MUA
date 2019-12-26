@@ -2,6 +2,7 @@ package src.mua.value;
 
 public class MUANumber extends MUAValue{
 	private Double val = (double) 0;
+	private String strVal = null;
 	
 	public double getVal() {
 		return val;
@@ -11,6 +12,7 @@ public class MUANumber extends MUAValue{
 	public MUANumber(String valStr)
 	{
 		super("Number");
+		this.strVal = valStr;
 		this.val = Double.valueOf(valStr);
 	}
 	
@@ -18,7 +20,7 @@ public class MUANumber extends MUAValue{
 
 	@Override
 	public String toString() {
-		return val.toString();
+		return strVal;
 	}
 
 
