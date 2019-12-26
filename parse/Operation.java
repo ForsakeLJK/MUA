@@ -321,7 +321,28 @@ public class Operation {
 
 				break;
 			case "butlast":
+				tmpVal1 = p.stackPop();
 
+				if (tmpVal1.getType().equals("List")) {
+					tmpList1 = (MUAList) tmpVal1;
+					tmpValArr = tmpList1.lexListContent(space, localSpace);
+					if (tmpValArr.size() == 1) {
+						tmpList1 = new MUAList("[]");
+						p.stackPush(tmpList1);
+					} else {
+						tmpStr = "[";
+						for (MUAValue muaValue : tmpValArr.subList(0, tmpValArr.size()-1)) {
+							tmpStr += fetchStrContent(muaValue, true) + " ";
+						}
+						tmpStr = tmpStr.trim();
+						tmpStr += "]";
+						tmpList1 = new MUAList(tmpStr);
+						p.stackPush(tmpList1);
+					}
+				} else {
+					tmpWord1 = new MUAWord(fetchStrContent(tmpVal1, true).trim().substring(0, fetchStrContent(tmpVal1, true).trim().length()-1), space, localSpace);
+					p.stackPush(tmpWord1);
+				}
 				break;
 
 			default:
@@ -421,7 +442,14 @@ public class Operation {
 					break;
 			}
 		}
-		
+		else if(tmpVal1.getType().equals("List"))
+		{
+			resBool = new MUABool("false");
+		}
+		else if(tmpVal2.getType().equals("List"))
+		{
+			resBool = new MUABool("false");
+		}
 
 		p.stackPush(resBool);
 	}
